@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'FitConnect.apps.FitconnectConfig',
 
     'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

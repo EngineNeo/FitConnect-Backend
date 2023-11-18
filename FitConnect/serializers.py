@@ -1,8 +1,9 @@
+from django.db.models import Avg
 from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials
+from .models import User, UserCredentials, Coach, CoachReview
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -25,3 +26,17 @@ class UserCredentialsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserCredentials
         fields = ['user','hashed_password']
+
+class CoachSerializer(serializers.ModelSerializer):
+    category = serializers.StringRelatedField(many=False)
+    state = serializers.StringRelatedField(many=False)
+
+    class Meta:
+        model = Coach
+        fields = ['coach_id', 'user_id', 'category', 'bio', 'state'] 
+
+    def to_representation(self, instance):
+        data = super(CoachSerializer, self).to_representation(instance)
+        avg_rating = CoachReview.objects.filter(coach_id=instance.coach_id).aggregate(Avg('rating'))['rating__avg'] or 0.0 #Get average reviews, or 0 for no reviews
+        data.update({'rating' : avg_rating})
+        return data

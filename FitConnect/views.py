@@ -6,7 +6,7 @@ from rest_framework import status
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
-from .serializers import UserSerializer, UserCredentialsSerializer
+from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer
 from .models import User, UserCredentials, Coach
 
 import django
@@ -84,3 +84,9 @@ class LoginView(APIView):
             return Response(response,status=status.HTTP_200_OK)
         else:
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
+
+class CoachView(APIView):
+    def get(self, request):
+        coaches = Coach.objects.all()
+        serializer = CoachSerializer(coaches, many=True)
+        return Response(serializer.data)
