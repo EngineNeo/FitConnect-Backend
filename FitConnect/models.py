@@ -21,7 +21,7 @@ class Coach(models.Model):
     state = models.ForeignKey('State', models.DO_NOTHING)
     last_update = models.DateTimeField(default=timezone.now)
     def __str__(self):
-        return self.user
+        return str(self.user)
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
         super(Coach, self).save(*args, **kwargs)

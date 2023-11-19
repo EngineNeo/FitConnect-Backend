@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.core.exceptions import ValidationError
+from django.db.models import Avg
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -87,6 +88,18 @@ class LoginView(APIView):
 
 class CoachView(APIView):
     def get(self, request):
-        coaches = Coach.objects.all()
+        min_rating = request.query_params.get("min_rating")
+        state = request.query_params.get('state')
+        category = request.query_params.get('category')
+
+        coaches = Coach.objects.annotate(rating=Avg('coachreview__rating')) #Add average rating to each coach entry
+        #If search criteria is passed, filter the queryset
+        if min_rating is not None:
+            coaches = coaches.filter(rating__gte=min_rating)
+        if state is not None:
+            coaches = coaches.filter(state__state_name=state)
+        if category is not None:
+            coaches = coaches.filter(category__category_name=category)
+
         serializer = CoachSerializer(coaches, many=True)
         return Response(serializer.data)
