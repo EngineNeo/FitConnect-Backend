@@ -17,6 +17,7 @@ class Coach(models.Model):
     coach_id = models.AutoField(primary_key=True)
     user = models.ForeignKey('User', models.DO_NOTHING)
     category = models.ForeignKey('CoachCategory', models.DO_NOTHING, blank=True, null=True)
+    experience = models.PositiveIntegerField()
     bio = models.TextField(blank=True, null=True)
     state = models.ForeignKey('State', models.DO_NOTHING)
     last_update = models.DateTimeField(default=timezone.now)

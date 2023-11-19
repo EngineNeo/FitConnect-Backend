@@ -8,7 +8,7 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
 from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer
-from .models import User, UserCredentials, Coach
+from .models import User, UserCredentials, Coach, AuthToken
 
 import django
 
@@ -75,7 +75,8 @@ class LoginView(APIView):
 
         if self.check_password(user_id, password): #Verify that the password was correct
             user_serializer = UserSerializer(user)
-            response={'token' : user.auth_token.key}
+            token = AuthToken.get_or_create(user_id=user_id)
+            response={'token' : token.key}
             if Coach.objects.filter(user_id=user_id).exists(): #Get user type by checking if user_id exists in the coach table
                 user_type = 'coach'
             else:
@@ -91,6 +92,7 @@ class CoachView(APIView):
         min_rating = request.query_params.get("min_rating")
         state = request.query_params.get('state')
         category = request.query_params.get('category')
+        min_experience = request.query_params.get("min_experience")
 
         coaches = Coach.objects.annotate(rating=Avg('coachreview__rating')) #Add average rating to each coach entry
         #If search criteria is passed, filter the queryset
@@ -100,6 +102,8 @@ class CoachView(APIView):
             coaches = coaches.filter(state__state_name=state)
         if category is not None:
             coaches = coaches.filter(category__category_name=category)
+        if min_experience is not None:
+            coaches = coaches.filter(experience__gte=min_experience)
 
         serializer = CoachSerializer(coaches, many=True)
         return Response(serializer.data)

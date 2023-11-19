@@ -30,10 +30,12 @@ class UserCredentialsSerializer(serializers.ModelSerializer):
 class CoachSerializer(serializers.ModelSerializer):
     category = serializers.StringRelatedField(many=False)
     state = serializers.StringRelatedField(many=False)
+    first_name = serializers.CharField(read_only=True, source='user.first_name')
+    last_name = serializers.CharField(read_only=True, source='user.last_name')
 
     class Meta:
         model = Coach
-        fields = ['coach_id', 'user_id', 'category', 'bio', 'state'] 
+        fields = ['coach_id', 'user_id', 'first_name', 'last_name', 'category', 'bio', 'state'] 
 
     def to_representation(self, instance):
         data = super(CoachSerializer, self).to_representation(instance)
