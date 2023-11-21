@@ -28,17 +28,19 @@ class UserCredentialsSerializer(serializers.ModelSerializer):
         fields = ['user','hashed_password']
 
 class CoachSerializer(serializers.ModelSerializer):
-    category = serializers.StringRelatedField(many=False)
-    state = serializers.StringRelatedField(many=False)
+    goal = serializers.StringRelatedField(many=False)
     first_name = serializers.CharField(read_only=True, source='user.first_name')
     last_name = serializers.CharField(read_only=True, source='user.last_name')
+    gender = serializers.CharField(read_only=True, source='user.gender')
 
     class Meta:
         model = Coach
-        fields = ['coach_id', 'user_id', 'first_name', 'last_name', 'category', 'bio', 'state'] 
+        fields = ['coach_id', 'user_id', 'goal', 'bio', 'first_name', 'last_name', 'gender', 'cost', 'experience'] 
 
+    '''
     def to_representation(self, instance):
         data = super(CoachSerializer, self).to_representation(instance)
         avg_rating = CoachReview.objects.filter(coach_id=instance.coach_id).aggregate(Avg('rating'))['rating__avg'] or 0.0 #Get average reviews, or 0 for no reviews
         data.update({'rating' : avg_rating})
         return data
+    '''

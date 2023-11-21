@@ -88,22 +88,34 @@ class LoginView(APIView):
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
 
 class CoachView(APIView):
-    def get(self, request):
-        min_rating = request.query_params.get("min_rating")
-        state = request.query_params.get('state')
-        category = request.query_params.get('category')
-        min_experience = request.query_params.get("min_experience")
+    def validate_search_params(self, params): 
+        # Validate query. Maybe make this a serializer later idk
+        
+        goal = params.get('goal') 
+        experience = params.get('min_experience')
+        cost = params.get('cost')
 
-        coaches = Coach.objects.annotate(rating=Avg('coachreview__rating')) #Add average rating to each coach entry
+        return [goal, experience, cost]
+
+    def get(self, request):
+        '''
+        goal = request.query_params.get('goal')
+        min_experience = request.query_params.get("min_experience")
+        max_cost = 
+        '''
+
+        try:
+            goal, min_experience, cost = self.validate_search_params(request.query_params)
+        except ValidationError as err:
+            return Response(err, status=status.HTTP_400_BAD_REQUEST)
+
         #If search criteria is passed, filter the queryset
-        if min_rating is not None:
-            coaches = coaches.filter(rating__gte=min_rating)
-        if state is not None:
-            coaches = coaches.filter(state__state_name=state)
-        if category is not None:
-            coaches = coaches.filter(category__category_name=category)
+        if cost is not None:
+            coaches = coaches.filter(cost__lte=cost)
+        if goal is not None:
+            coaches = coaches.filter(goal__goal_name=goal)
         if min_experience is not None:
             coaches = coaches.filter(experience__gte=min_experience)
 
         serializer = CoachSerializer(coaches, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
