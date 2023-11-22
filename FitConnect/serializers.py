@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['user_id', 'email', 'first_name', 'last_name', 'gender', 'birth_date', 'creation_date', 'last_update']
+        fields = ['user_id', 'email', 'first_name', 'last_name', 'gender', 'birth_date', 'goal_id', 'has_coach', 'hired_coach_id', 'created', 'last_update']
 
     def validate_email(self, value):
         queryset = User.objects.filter(email=value)
