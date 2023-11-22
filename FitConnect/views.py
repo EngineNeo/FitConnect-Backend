@@ -7,7 +7,7 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
 from .serializers import UserSerializer, UserCredentialsSerializer
-from .models import User, UserCredentials
+from .models import User, UserCredentials, Coach
 
 import django
 
@@ -76,7 +76,12 @@ class LoginView(APIView):
         if self.check_password(user_id, password): #Verify that the password was correct
             user_serializer = UserSerializer(user)
             response={'token' : user.auth_token.key}
+            if Coach.objects.filter(user_id=user_id).exists(): #Get user type by checking if user_id exists in the coach table
+                user_type = 'coach'
+            else:
+                user_type = 'user'
+            response.update({'user_type' : user_type})
             response.update(user_serializer.data)
-            return Response(response,status=status.HTTP_200_OK) #Edit this to only return the data needed for login
+            return Response(response,status=status.HTTP_200_OK)
         else:
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
