@@ -87,33 +87,33 @@ class LoginView(APIView):
         else:
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
 
-class CoachView(APIView):
+class CoachList(APIView):
     def validate_search_params(self, params): 
         # Validate query. Maybe make this a serializer later idk
-        
         goal = params.get('goal') 
+
         experience = params.get('min_experience')
+        if experience < 0:
+            raise ValidationError('Experience cannot be negative')
+
         cost = params.get('cost')
+        if cost < 0:
+            raise ValidationError('Cost cannot be negative')
 
         return [goal, experience, cost]
 
     def get(self, request):
-        '''
-        goal = request.query_params.get('goal')
-        min_experience = request.query_params.get("min_experience")
-        max_cost = 
-        '''
-
         try:
             goal, min_experience, cost = self.validate_search_params(request.query_params)
         except ValidationError as err:
             return Response(err, status=status.HTTP_400_BAD_REQUEST)
 
         #If search criteria is passed, filter the queryset
+        coaches = Coach.objects.all()
         if cost is not None:
             coaches = coaches.filter(cost__lte=cost)
         if goal is not None:
-            coaches = coaches.filter(goal__goal_name=goal)
+            coaches = coaches.filter(goal__goal_id=goal)
         if min_experience is not None:
             coaches = coaches.filter(experience__gte=min_experience)
 

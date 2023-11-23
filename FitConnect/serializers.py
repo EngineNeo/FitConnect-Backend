@@ -1,18 +1,18 @@
-from django.db.models import Avg
 from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials, Coach, CoachReview
+from .models import User, UserCredentials, Coach, GoalBank
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
         validators=[EmailValidator(message='Enter a valid email address')],
     )
+    goal = serializers.StringRelatedField(many=False)
 
     class Meta:
         model = User
-        fields = ['user_id', 'email', 'first_name', 'last_name', 'gender', 'birth_date', 'creation_date', 'last_update']
+        fields = ['user_id', 'email', 'first_name', 'last_name', 'gender', 'birth_date', 'goal', 'creation_date', 'last_update']
 
     def validate_email(self, value):
         queryset = User.objects.filter(email=value)
@@ -37,10 +37,7 @@ class CoachSerializer(serializers.ModelSerializer):
         model = Coach
         fields = ['coach_id', 'user_id', 'goal', 'bio', 'first_name', 'last_name', 'gender', 'cost', 'experience'] 
 
-    '''
-    def to_representation(self, instance):
-        data = super(CoachSerializer, self).to_representation(instance)
-        avg_rating = CoachReview.objects.filter(coach_id=instance.coach_id).aggregate(Avg('rating'))['rating__avg'] or 0.0 #Get average reviews, or 0 for no reviews
-        data.update({'rating' : avg_rating})
-        return data
-    '''
+class GoalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GoalBank
+        fields = ['goal_id', 'goal_name']
