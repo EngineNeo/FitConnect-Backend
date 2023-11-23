@@ -52,6 +52,7 @@ class CreateUserView(APIView):
             print('serializer was not valid')
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class LoginView(APIView):
     def check_password(self, user_id, password): #Checks that provided password matches the stored hash
         ph = PasswordHasher()

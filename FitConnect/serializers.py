@@ -11,7 +11,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['user_id', 'email', 'first_name', 'last_name', 'gender', 'birth_date', 'created', 'last_update']
+        # Changed 'creation_date' to 'created'
 
     def validate_email(self, value):
         queryset = User.objects.filter(email=value)
@@ -21,10 +22,12 @@ class UserSerializer(serializers.ModelSerializer):
             raise ValidationError('This email address is already in use.')
         return value
 
+
 class UserCredentialsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserCredentials
         fields = ['user','hashed_password']
+
 
 class PhysicalHealthLogSerializer(serializers.ModelSerializer):
     class Meta:
