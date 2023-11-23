@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials
+from .models import User, UserCredentials, CalorieLog, WaterLog
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -25,3 +25,16 @@ class UserCredentialsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserCredentials
         fields = ['user','hashed_password']
+
+
+class CalorieLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CalorieLog
+        fields = ['calorie_id', 'user', 'amount', 'recorded_date', 'created', 'last_update']
+
+
+class WaterLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WaterLog
+        fields = ['water_id', 'user', 'amount', 'recorded_date', 'created', 'last_update']
+

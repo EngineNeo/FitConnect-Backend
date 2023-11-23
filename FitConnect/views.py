@@ -6,7 +6,8 @@ from rest_framework import status
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
-from .serializers import UserSerializer, UserCredentialsSerializer
+from .serializers import *
+#from .serializers import UserSerializer, UserCredentialsSerializer
 from .models import User, UserCredentials, Coach
 
 import django
@@ -84,3 +85,28 @@ class LoginView(APIView):
             return Response(response,status=status.HTTP_200_OK)
         else:
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CalorieLogView(APIView):
+    def post(self, request):
+        serializer = CalorieLogSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            print("CalorieLogSerializer: Bad Request")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+
+class WaterLogView(APIView):
+    def post(self, request):
+        serializer = WaterLogSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            print("WaterLogSerializer: Bad Request")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
