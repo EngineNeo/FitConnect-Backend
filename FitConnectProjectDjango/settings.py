@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'FitConnect.apps.FitconnectConfig',
 
+    'rest_framework',
     'corsheaders',
 ]
 
