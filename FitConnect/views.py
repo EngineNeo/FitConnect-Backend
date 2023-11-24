@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.core.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
@@ -87,17 +87,15 @@ class LoginView(APIView):
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CalorieLogView(APIView):
-    def post(self, request):
-        serializer = CalorieLogSerializer(data=request.data)
+class CalorieLogList(generics.ListCreateAPIView):
+    queryset = CalorieLog.objects.all()
+    serializer_class = CalorieLogSerializer
 
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            print("CalorieLogSerializer: Bad Request")
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
+class CalorieLogDetails(generics.RetrieveDestroyAPIView):
+    queryset = CalorieLog.objects.all()
+    serializer_class = CalorieLogSerializer
+        
 
 class WaterLogView(APIView):
     def post(self, request):

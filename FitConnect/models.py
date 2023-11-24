@@ -228,8 +228,9 @@ class User(models.Model):
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
+    # Changed the return to a string, this allows a properly functioning generic endpoint
     def __str__(self):
-        return self.name
+        return f"self.name"
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
