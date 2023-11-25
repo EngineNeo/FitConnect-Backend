@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['user_id', 'email', 'first_name', 'last_name', 'gender', 'birth_date', 'goal', 'creation_date', 'last_update']
+        fields = ['user_id', 'email', 'first_name', 'last_name', 'gender', 'birth_date', 'goal', 'has_coach', 'hired_coach']
 
     def validate_email(self, value):
         queryset = User.objects.filter(email=value)
@@ -20,6 +20,12 @@ class UserSerializer(serializers.ModelSerializer):
             queryset = queryset.exclude(pk=self.instance.pk)  # exclude the current user when looking
         if queryset.exists():
             raise ValidationError('This email address is already in use.')
+        return value
+
+    def validate_hired_coach(self, value):
+        if self.instance and self.instance.has_coach:
+            if value is None:
+                raise ValidationError('User must have a hired coach if has_coach is True')
         return value
 
 class UserCredentialsSerializer(serializers.ModelSerializer):
@@ -33,9 +39,10 @@ class CoachSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(read_only=True, source='user.last_name')
     gender = serializers.CharField(read_only=True, source='user.gender')
 
+    # age = today.date() - user.birth_date - ((today.month, today.day) < (birth.month, birth.day))
     class Meta:
         model = Coach
-        fields = ['coach_id', 'user_id', 'goal', 'bio', 'first_name', 'last_name', 'gender', 'cost', 'experience'] 
+        fields = ['coach_id', 'user_id', 'goal', 'bio', 'cost', 'experience', 'first_name', 'last_name', 'gender'] 
 
 class GoalSerializer(serializers.ModelSerializer):
     class Meta:

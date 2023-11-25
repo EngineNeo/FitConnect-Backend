@@ -6,88 +6,97 @@ INSERT INTO goal_bank (goal_name) VALUES
 ('Goal 4'),
 ('Goal 5');
 
--- Trim this down
 INSERT INTO muscle_group_bank (name) VALUES
-('Abdominals'),
 ('Biceps'),
-('Triceps'),
-('Quadriceps'),
-('Hamstrings'),
-('Calves'),
-('Pectorals'),
-('Deltoids'),
-('Lats'),
-('Rhomboids'),
 ('Trapezius'),
-('Obliques'),
-('Erector Spinae'),
-('Glutes'),
-('Adductors'),
-('Serratus Anterior'),
-('Soleus'),
-('Tibialis Anterior'),
+('Abdominals'),
+('Calves'),
 ('Forearms'),
-('Quadratus Lumborum'),
-('Rotator Cuff'),
-('Sartorius'),
-('Iliopsoas');
+('Glutes'),
+('Lats'),
+('Shoulders'),
+('Triceps'),
+('Chest');
 
--- Trim this down
 INSERT INTO equipment_bank (name) VALUES 
-('Dumbbells'),
-('Treadmill'),
-('Resistance Bands'),
-('Kettlebell'),
+('None'),
 ('Barbell'),
-('Elliptical Trainer'),
-('Medicine Ball'),
-('Rowing Machine'),
-('Bosu Ball'),
-('Jump Rope'),
-('Stability Ball'),
-('Boxing Gloves'),
-('Pull-Up Bar'),
-('Foam Roller'),
-('TRX Suspension Trainer'),
-('Exercise Mat'),
-('Smith Machine'),
-('Stepper'),
-('Battle Ropes'),
-('Cable Machine'),
-('Pilates Reformer'),
-('Gymnastic Rings'),
-('Sled'),
-('Power Rack'),
-('Leg Press Machine')
-('None');
+('Dumbbells'),
+('Cables'),
+('Band'),
+('Kettlebell'),
+('Plate');
 
--- Redo 
 INSERT INTO exercise_bank (name, description, muscle_group_id, equipment_id) VALUES
-('Running', 'Jogging or running for cardiovascular fitness.', 1, 26),
-('Bench Press', 'Lifting weights on a flat bench for chest muscles.', 2, 7),
-('Yoga Pose: Downward Dog', 'A yoga pose focusing on stretching and strengthening.', 4, 14),
-('Squats', 'A lower body exercise targeting quadriceps and glutes.', 2, 4),
-('Jumping Jacks', 'A full-body exercise involving jumping and arm movements.', 1, 26),
-('Plank', 'A core exercise holding a position similar to a push-up.', 3, 26),
-('Deadlift', 'Lifting weights from the ground to hip level, targeting multiple muscles.', 2, 6),
-('Cycling', 'Riding a stationary or outdoor bicycle for cardiovascular fitness.', 1, 26),
-('Push-Ups', 'A bodyweight exercise for upper body strength.', 2, 26),
-('Pilates: Hundreds', 'A Pilates exercise for core strength and endurance.', 3, 1),
-('Lunges', 'A lower body exercise involving stepping forward with one leg.', 2, 4),
-('Swimming', 'A full-body workout by swimming in water.', 1, 26),
-('Pull-Ups', 'Lifting the body upwards using an overhead bar, targeting upper body muscles.', 2, 8),
-('Burpees', 'A full-body exercise involving squatting, jumping, and push-ups.', 2, 16),
-('Chest Fly', 'A weightlifting exercise targeting chest muscles with a fly motion.', 2, 7),
-('Mountain Climbers', 'A cardio and core exercise involving bringing knees toward the chest.', 1, 26),
-('Russian Twists', 'A core exercise involving twisting the torso while seated or lying down.', 3, 11),
-('Box Jumps', 'Jumping onto a box for lower body power and strength.', 2, 4),
-('Tricep Dips', 'A bodyweight exercise for targeting the triceps.', 2, 3),
-('Hiking', 'Walking in natural terrain for cardiovascular and lower body workout.', 1, 26),
-('Leg Press', 'A weightlifting exercise for lower body strength using a leg press machine.', 2, 4),
-('Kettlebell Swings', 'A dynamic exercise using a kettlebell for hip and core strength.', 2, 5),
-('Bicep Curls', 'Lifting weights to target the biceps.', 2, 1),
-('Battle Rope Waves', 'Waving heavy ropes for cardiovascular and arm strength.', 2, 17),
-('Boxing: Jab-Cross', 'A basic combination in boxing for cardio and upper body strength.', 5, 18);
+('Barbell Curl','A classic strength training exercise targeting the biceps, where a barbell is lifted using a supine grip, isolating and building the muscles in the upper arm.',1, 2),
+('Dumbbell Curl','An effective bicep exercise involving the lifting of dumbbells, usually done alternately or simultaneously, to enhance muscle symmetry and strength.',1, 3),
+('Kettlebell Goblet Curl','A unique variation of the bicep curl using a kettlebell held close to the chest, challenging the biceps and engaging the core muscles.',1,6),
+('Cable Twisting Curl','A dynamic bicep exercise performed using a cable machine, incorporating a twisting motion during the curl to emphasize different parts of the bicep muscle.',1,4),
+('Band Bayesian Curl','A resistance band exercise targeting the biceps, applying the principles of Bayesian training to gradually increase resistance, promoting muscle adaptation and growth.',1,5),
+('Plate Curl to overhead Press','A compound exercise involving a combination of bicep curls and overhead presses using a weight plate, effectively working both the biceps and shoulder muscles in a single movement.',1,7),
+
+('Dumbbell Seated Shrug','A shoulder-targeting exercise performed while seated, involving the elevation of the shoulders using dumbbells to enhance trap and upper back development.',2, 3),
+('Kettlebell Upright Row','A compound exercise utilizing a kettlebell, where the weight is lifted vertically close to the body, targeting the shoulders and upper back muscles.',2, 6),
+('Elevated Pike Shoulder Shrug','An advanced variation of the shoulder shrug performed in a pike position, emphasizing the upper trapezius and deltoid muscles.',2,1),
+('Cable 30 Degree Shrug','A specialized shrug exercise using a cable machine set at a 30-degree angle, providing a unique resistance profile to effectively target the upper traps and shoulders.',2,4),
+('Band Shrug','A shoulder-strengthening movement using resistance bands to perform shrugs, promoting muscle engagement and endurance in the upper trapezius.',2,5),
+('Barbell Z Press','A challenging overhead press variation performed in a seated position with the legs extended, using a barbell, to engage the shoulders and core muscles while eliminating lower body assistance.',2,2),
+
+('Crunches','A fundamental abdominal exercise involving the contraction of the abdominal muscles while lying on the back, commonly performed to strengthen the core.',3,1),
+('Laying Leg Raises','An exercise targeting the lower abdominal muscles, performed by lying on the back and lifting the legs upward without allowing them to touch the ground.',3,1),
+('Kettlebell Situp','A variation of the traditional sit-up incorporating a kettlebell for added resistance, challenging the abdominal muscles and promoting core strength.',3,6),
+('Barbell Roll Outs','A dynamic core exercise using a barbell and an ab wheel, where the body is extended forward and then retracted, engaging the entire core to stabilize and control the movement.',3,2),
+('Cable Standing Crunch','A cable machine variation of the crunch, involving a standing position and utilizing cable resistance to engage the abdominal muscles through a controlled crunching motion.',3,4),
+('Dumbbell Hollow Hold','An isometric exercise focusing on the anterior chain, where the body is positioned in a hollow hold while holding dumbbells, engaging the core and challenging stability.',3,3),
+
+('Tip Toe Walking','A calf-strengthening exercise involving walking on tiptoes, which engages the calf muscles and helps improve balance and stability.',4,1),
+('Barbell Calf Raises','A classic strength training exercise targeting the calf muscles, where the lifter lifts a barbell using the calves by rising onto the balls of the feet.',4,2),
+('Kettlebell Seated Calf Raise','An isolated calf exercise performed in a seated position with a kettlebell, focusing on the calf muscles contraction and extension.',4,6),
+('Dumbbell Calf Raise','A simple and effective calf exercise using dumbbells, typically performed by lifting the heels while holding dumbbells to target and strengthen the calf muscles.',4,3),
+('Cable Bar Calf Raise','A calf raise variation using a cable machine and a bar attachment, providing continuous resistance throughout the exercise to target the calf muscles.',4,4),
+('Kettlebell Goblet Calf Raise','A calf raise variation involving a goblet hold with a kettlebell, adding resistance to the calf muscles while performing the raise.',4,6),
+
+('Dumbbell Wrist Curl','A forearm-strengthening exercise using dumbbells, where the wrists are flexed and then extended to target the muscles of the forearm.',5,3),
+('Kettlebell Farmers Carry','A functional strength exercise involving walking while holding a kettlebell in each hand, challenging grip strength, and promoting overall stability.',5,6),
+('Cable Wrist Extension','An exercise using a cable machine to target the muscles responsible for wrist extension, aiding in forearm and grip strength development.',5,4),
+('Plate Pinch Grip Side Bend','A unique exercise combining a side bend motion with a plate pinch grip, engaging the obliques and forearm muscles simultaneously.',5,7),
+('Plate Pinch Grip Deadlift','A deadlift variation that incorporates a pinch grip on weight plates, focusing on grip strength, forearm engagement, and the overall lift.',5,7),
+('Inverted Row','A bodyweight exercise performed on a horizontal bar where the body is positioned beneath the bar and pulled upward, targeting the muscles of the upper back, arms, and core.',5,1),
+
+('Barbell Squat','A fundamental compound exercise involving a barbell, where the lifter lowers their body into a squatting position and then returns to a standing position, engaging multiple muscle groups, especially the lower body.',6,2),
+('Dumbbell Goblet Good Morning','A variation of the good morning exercise using a dumbbell held close to the chest, emphasizing the hinge at the hips to target the posterior chain, particularly the hamstrings and lower back.',6,3),
+('Cable Bar Romanian Deadlift','A cable machine variation of the Romanian deadlift, using a bar attachment to provide constant tension on the muscles during the hip hinge movement, targeting the hamstrings and glutes.',6,4),
+('Band Glute Kickback','An isolation exercise for the glutes using resistance bands, where the leg is extended backward against the resistance to activate and strengthen the glute muscles.',6,5),
+('Kettlebell Snatch','A dynamic full-body exercise using a kettlebell, involving a powerful hip hinge and overhead movement to lift the kettlebell from the ground to an overhead position, engaging the posterior chain and shoulder muscles.',6,6),
+('Plate Clean','A functional exercise involving lifting a weight plate from the ground to a standing position, incorporating a clean movement pattern to work on explosive strength, particularly in the hips and shoulders.',6,7),
+
+('Pull Ups','A classic upper body exercise where the body is pulled up using an overhead bar, targeting the muscles of the back, particularly the latissimus dorsi.',7,1),
+('Cable Lat Prayer','A cable machine exercise involving a kneeling or standing position, where the individual pulls the cable attachment toward their face, targeting the lat muscles.',7,4),
+('Dumbbell Single Arm Row','An effective unilateral exercise using dumbbells, where the individual pulls a weight in a rowing motion, targeting the muscles of the back and promoting muscle balance.',7,3),
+('Plate Pinch Grip Row','A rowing exercise performed while holding weight plates with a pinch grip, engaging the back muscles and promoting grip strength.',7,7),
+('Pushup to Renegate Row','A combination exercise involving a pushup followed by a row with dumbbells, engaging both the chest and back muscles in a single fluid movement.',7,2),
+('Kettlebell Gorilla Row','A rowing exercise using kettlebells, where the individual bends at the hips and knees, engaging the back muscles in a rowing motion while in a gorilla stance.',7,6),
+
+('Dumbbell Lateral Raise','An isolation exercise using dumbbells to lift the arms laterally, targeting the muscles of the shoulder, specifically the lateral deltoids.',8,3),
+('Cable Rope Face Pulls','An exercise using a cable machine with a rope attachment, where the individual pulls the rope towards their face to target the rear deltoids and upper back muscles.',8,4),
+('Kettlebell Front Raise','A shoulder exercise using a kettlebell, where the individual lifts the kettlebell in front of them to target the anterior deltoids.',8,6),
+('Band Pull Apart','An exercise using resistance bands, where the band is pulled apart horizontally to engage the muscles between the shoulder blades, promoting shoulder stability.',8,5),
+('Plate Rear Delt Fly','An exercise using weight plates to target the rear deltoids and upper back muscles by lifting the arms laterally in a fly motion.',8,7),
+('Elevated Pike Press','A shoulder-strengthening exercise performed in a pike position, involving a pressing motion to engage the anterior deltoids and other shoulder muscles.',8,1),
+
+('Diamond Push Ups','A push-up variation where the hands are placed close together under the chest, targeting the triceps and inner chest muscles.',9,1),
+('Explosive Push Up','A dynamic push-up variation that involves an explosive upward movement, engaging the chest, shoulders, and triceps with increased power and speed.',9,1),
+('Dumbbell Seated Overhead Tricep Extension','An isolation exercise for the triceps, performed in a seated position with a dumbbell, involving the extension of the arm overhead to target the tricep muscles.',9,3),
+('Kettlebell Tate Press','A tricep exercise using a kettlebell, where the individual extends the kettlebell overhead while keeping the forearm vertical, isolating the triceps.',9,6),
+('Band Skullcrusher','A tricep exercise using resistance bands, where the individual performs a skullcrusher motion to target and strengthen the triceps.',9,5),
+('Plate Squat Reach','A full-body exercise incorporating a squat and overhead reach using a weight plate, engaging the legs, core, and shoulders in a coordinated movement.',9,7),
+
+('Dumbbell Incline Chest Flys','An isolation exercise performed on an inclined bench using dumbbells, focusing on the chest muscles by bringing the arms together in a fly motion.',10,3),
+('Kettlebell Walkover Pushup','A dynamic push-up variation incorporating a lateral walkover movement with kettlebells, engaging the chest, shoulders, and core in a coordinated manner.',10,6),
+('Band Single Arm Chest Press','A chest press exercise using resistance bands, emphasizing unilateral movement to target and strengthen the chest muscles.',10,5),
+('Barbell Floor Press','A bench press variation performed lying on the floor, limiting the range of motion and targeting the chest muscles with the barbell.',10,2),
+('Cable Decline Bench Press','A cable machine variation of the decline bench press, targeting the lower chest muscles by providing constant resistance throughout the movement.',10,4),
+('Plate Deficit Pushup','A push-up variation where the hands are elevated on weight plates, increasing the range of motion and engaging the chest muscles more intensively.',10,7);
 
 INSERT INTO user (email, first_name, last_name, gender, birth_date, goal_id, has_coach, hired_coach_id) VALUES
 ('henryeugeneprice34@outlook.com', 'Henry', 'Price', 'Male', '2010-01-23', 2, 0, NULL),
@@ -12352,6 +12361,7 @@ INSERT INTO message_log (sender_id, recipient_id, message_text, sent_date) VALUE
 (9, 10, "Hey, are you available for a coaching session this weekend?", '2023-12-05 18:30:00'),
 (10, 9, "Yes, I have availability. Let's schedule a session. What time works for you?", '2023-12-05 18:35:00');
 
+/*
 INSERT INTO workout_plan (user_id, plan_name, creation_date) VALUES
 ();
 
@@ -12360,3 +12370,4 @@ INSERT INTO exercise_in_workout_plan (plan_id, exercise_id, sets, reps, duration
 
 INSERT INTO workout_log (user_id, exercise_in_plan_id, completed_date) VALUES
 ();
+*/

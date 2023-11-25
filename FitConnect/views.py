@@ -1,9 +1,8 @@
 from django.shortcuts import render
 from django.core.exceptions import ValidationError
-from django.db.models import Avg
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
@@ -90,15 +89,20 @@ class LoginView(APIView):
 class CoachList(APIView):
     def validate_search_params(self, params): 
         # Validate query. Maybe make this a serializer later idk
-        goal = params.get('goal') 
+        goal = params.get('goal')
 
-        experience = params.get('min_experience')
-        if experience < 0:
-            raise ValidationError('Experience cannot be negative')
+        experience = params.get('experience')
+        if experience is not None: 
+            experience = int(experience)
+            print('experience=',experience)
+            if experience < 0:
+                raise ValidationError('Experience cannot be negative')
 
         cost = params.get('cost')
-        if cost < 0:
-            raise ValidationError('Cost cannot be negative')
+        if cost is not None:
+            cost = float(cost)
+            if cost < 0:
+                raise ValidationError('Cost cannot be negative')
 
         return [goal, experience, cost]
 
@@ -109,6 +113,7 @@ class CoachList(APIView):
             return Response(err, status=status.HTTP_400_BAD_REQUEST)
 
         #If search criteria is passed, filter the queryset
+        #Consider allowing filtering for multiple goals; max and min cost; max and min experience
         coaches = Coach.objects.all()
         if cost is not None:
             coaches = coaches.filter(cost__lte=cost)
@@ -119,3 +124,7 @@ class CoachList(APIView):
 
         serializer = CoachSerializer(coaches, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class CoachDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Coach.objects.all()
+    serializer_class = CoachSerializer
