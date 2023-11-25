@@ -97,14 +97,12 @@ class CalorieLogDetails(generics.RetrieveDestroyAPIView):
     serializer_class = CalorieLogSerializer
         
 
-class WaterLogView(APIView):
-    def post(self, request):
-        serializer = WaterLogSerializer(data=request.data)
+class WaterLogList(generics.ListCreateAPIView):
+    queryset = WaterLog.objects.all()
+    serializer_class = WaterLogSerializer
 
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            print("WaterLogSerializer: Bad Request")
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class WaterLogDetails(generics.RetrieveDestroyAPIView):
+    queryset = WaterLog.objects.all()
+    serializer_class = WaterLogSerializer
     
