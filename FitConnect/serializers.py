@@ -24,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_hired_coach(self, value):
         if self.instance and self.instance.has_coach:
-            if value is None:
+            if value is None and self.initial_data['has_coach'] != False:
                 raise ValidationError('User must have a hired coach if has_coach is True')
         return value
 
@@ -48,3 +48,74 @@ class GoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = GoalBank
         fields = ['goal_id', 'goal_name']
+
+class CoachRequestSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    coach = serializers.IntegerField()
+
+    def save(self):
+        user_instance = User.objects.get(pk=self.validated_data['user'])
+        user_instance.has_coach = False
+        user_instance.hired_coach = Coach.objects.get(pk=self.validated_data['coach'])
+        user_instance.save()
+
+    def validate_user(self, value):
+        try:
+            user_instance = User.objects.get(pk=value)
+        except User.DoesNotExist:
+            print('User does not exist.')
+            raise ValidationError('User does not exist.')
+
+        if user_instance.has_coach:
+            print('User already has a coach.')
+            raise ValidationError('User already has a coach.')
+
+        if user_instance.hired_coach is not None:
+            print('User has already requested a coach.')
+            raise ValidationError('User has already requested a coach.')
+        return value
+
+    def validate_coach(self, value):
+        if not Coach.objects.filter(pk=value).exists():
+            print('Coach does not exist.')
+            raise ValidationError('Requested coach does not exist.')
+        return value
+
+class CoachAcceptSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    coach = serializers.IntegerField()
+
+    def save(self):
+        user_instance = User.objects.get(pk=self.validated_data['user'])
+        user_instance.has_coach = True
+        user_instance.hired_coach = Coach.objects.get(pk=self.validated_data['coach'])
+        user_instance.save()
+
+    def validate_user(self, value):
+        try:
+            user_instance = User.objects.get(pk=value)
+        except User.DoesNotExist:
+            print('User does not exist.')
+            raise ValidationError('User does not exist.')
+
+        if user_instance.has_coach:
+            print('User already has a coach.')
+            raise ValidationError('User already has a coach.')
+
+        return value
+
+    def validate_coach(self, value):
+        if not Coach.objects.filter(pk=value).exists():
+            print('Coach does not exist.')
+            raise ValidationError('Coach does not exist.')
+
+        try:
+            user_instance = User.objects.get(pk=self.initial_data['user'])
+        except User.DoesNotExist:
+            user_instance = None
+
+        if user_instance is not None and user_instance.hired_coach_id != value:
+            print('Coach was not requested by user.')
+            raise ValidationError('User has not requested this coach.')
+
+        return value

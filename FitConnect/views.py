@@ -6,7 +6,7 @@ from rest_framework import status, generics
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
-from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer
+from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer
 from .models import User, UserCredentials, Coach, AuthToken
 
 import django
@@ -128,3 +128,40 @@ class CoachList(APIView):
 class CoachDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Coach.objects.all()
     serializer_class = CoachSerializer
+
+class RequestCoach(APIView):
+    def patch(self, request):
+        # expecting {'user' : user_id, 'coach' : coach_id}
+        request = CoachRequestSerializer(data=request.data)
+        if request.is_valid():
+            request.save()
+            return Response('Requested coach successfully', status=status.HTTP_200_OK)
+        else:
+            return Response(request.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class AcceptClient(APIView):
+    def patch(self, request):
+        # expecting {'user' : user_id, 'coach' : coach_id}
+        request = CoachAcceptSerializer(data=request.data)
+        if request.is_valid():
+            request.save()
+            return Response('Accepted client successfully', status=status.HTTP_200_OK)
+        else:
+            return Response(request.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FireCoach(APIView):
+    def patch(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response("User does not exist.", status=status.HTTP_400_BAD_REQUEST)
+
+        user_serializer = UserSerializer(user, data={'has_coach' : False, 'hired_coach' : None}, partial=True)
+        if user_serializer.is_valid():
+            print('serializer is valid.')
+            user_serializer.save()
+            return Response('Successfully fired coach.', status=status.HTTP_200_OK)
+        print('Invalid:', user_serializer.errors)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

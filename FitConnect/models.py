@@ -229,7 +229,7 @@ class User(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.first_name + ' ' + self.last_name
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
