@@ -1,3 +1,5 @@
+import django
+import json
 from django.shortcuts import render
 from django.core.exceptions import ValidationError
 from rest_framework.views import APIView
@@ -5,11 +7,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-
-from .serializers import UserSerializer, UserCredentialsSerializer
+from .serializers import UserSerializer, UserCredentialsSerializer, WorkoutPlan, ExerciseInWorkoutPlan
 from .models import User, UserCredentials, Coach
-
-import django
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 def validate_password(password):
     if len(password) < 7:
@@ -84,3 +86,43 @@ class LoginView(APIView):
             return Response(response,status=status.HTTP_200_OK)
         else:
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
+def create_workout_plan(request):
+    if request.method == 'POST':
+
+        data = json.loads(request.body.decode('utf-8'))
+        
+        # find the workout plan data
+        user_id = data.get('user')
+        plan_name = data.get('planName')
+        creation_date = data.get('creationDate')
+        
+        # create workout plan
+        workout_plan = WorkoutPlan.objects.create(
+            user_id=user_id,
+            plan_name=plan_name,
+            creation_date=creation_date,
+            created=timezone.now(),
+            last_update=timezone.now()
+        )
+        
+        # find exercise data
+        exercises_data = json.loads(data.get('exercises'))
+        
+        # Create ExerciseInWorkoutPlan objects
+        for exercise_data in exercises_data:
+            ExerciseInWorkoutPlan.objects.create(
+                plan=workout_plan,
+                exercise_id=exercise_data.get('exercise'),
+                sets=exercise_data.get('sets'),
+                reps=exercise_data.get('reps'),
+                weight=exercise_data.get('weight'),
+                duration_minutes=exercise_data.get('durationMinutes'),
+                created=timezone.now(),
+                last_update=timezone.now()
+            )
+        
+        return JsonResponse({'status': 'success'})
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
