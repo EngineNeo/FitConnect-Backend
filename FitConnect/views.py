@@ -4,13 +4,15 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-
+from django.views.decorators.csrf import csrf_exempt
 from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer
-from .models import User, UserCredentials, Coach, AuthToken
+from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
 from .services.initial_survey_eligibility import check_initial_survey_eligibility
-import django
+from django.utils import timezone
+from django.http import JsonResponse
+import django, json
 
 
 def validate_password(password):
@@ -212,3 +214,43 @@ class InitialSurveyView(APIView):
             return Response(physical_health_response, status=physical_health_status)
         # Return the response
         return Response({"success": "Survey completed successfully"}, status=status.HTTP_201_CREATED)
+
+@csrf_exempt
+def create_workout_plan(request):
+    if request.method == 'POST':
+
+        data = json.loads(request.body.decode('utf-8'))
+
+        # find the workout plan data
+        user_id = data.get('user')
+        plan_name = data.get('planName')
+        creation_date = data.get('creationDate')
+
+        # create workout plan
+        workout_plan = WorkoutPlan.objects.create(
+            user_id=user_id,
+            plan_name=plan_name,
+            creation_date=creation_date,
+            created=timezone.now(),
+            last_update=timezone.now()
+        )
+
+        # find exercise data
+        exercises_data = json.loads(data.get('exercises'))
+
+        # Create ExerciseInWorkoutPlan objects
+        for exercise_data in exercises_data:
+            ExerciseInWorkoutPlan.objects.create(
+                plan=workout_plan,
+                exercise_id=exercise_data.get('exercise'),
+                sets=exercise_data.get('sets'),
+                reps=exercise_data.get('reps'),
+                weight=exercise_data.get('weight'),
+                duration_minutes=exercise_data.get('durationMinutes'),
+                created=timezone.now(),
+                last_update=timezone.now()
+            )
+
+        return JsonResponse({'status': 'success'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})

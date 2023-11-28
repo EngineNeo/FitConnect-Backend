@@ -50,7 +50,7 @@ class CoachSerializer(serializers.ModelSerializer):
         return value
 
     def validate_experience(self, value):
-        if experience < 0:
+        if value < 0:
             raise ValidationError('Experience cannot be negative.')
         return value
 
