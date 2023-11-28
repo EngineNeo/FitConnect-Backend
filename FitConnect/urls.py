@@ -11,4 +11,5 @@ urlpatterns = [
     path('fitConnect/requestCoach/', RequestCoach.as_view()),
     path('fitConnect/acceptClient/', AcceptClient.as_view()),
     path('fitConnect/fireCoach/<int:pk>', FireCoach.as_view()),
+    path('fitConnect/initial_survey', InitialSurveyView.as_view(), name='initial-survey')
 ]

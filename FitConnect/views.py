@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.core.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,8 +7,11 @@ from argon2.exceptions import VerifyMismatchError
 
 from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer
 from .models import User, UserCredentials, Coach, AuthToken
-
+from .services.physical_health import add_physical_health_log
+from .services.goals import update_user_goal
+from .services.initial_survey_eligibility import check_initial_survey_eligibility
 import django
+
 
 def validate_password(password):
     if len(password) < 7:
@@ -50,6 +52,7 @@ class CreateUserView(APIView):
             print('serializer was not valid')
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class LoginView(APIView):
     def check_password(self, user_id, password): #Checks that provided password matches the stored hash
         ph = PasswordHasher()
@@ -62,7 +65,7 @@ class LoginView(APIView):
             return False
 
     def get(self, request):
-        email = request.query_params.get("email") 
+        email = request.query_params.get("email")
         try:
             django.core.validators.validate_email(email) #Check that email is valid before hitting db
             user = User.objects.get(email=email)         #Will throw exception if user does not exist
@@ -177,3 +180,35 @@ class CoachClients(APIView):
         clients = User.objects.filter(has_coach=self.hired, hired_coach__coach_id=pk)
         clients_serializer = UserSerializer(clients, many=True)
         return Response(clients_serializer.data, status=status.HTTP_200_OK)
+
+# Requirements:
+# All fields filled, user goal is null, user has no physical health logs
+class InitialSurveyView(APIView):
+    def post(self, request):
+        # Extract data from the request
+        user_id = request.data.get('user_id')
+        goal_id = request.data.get('goal_id')
+        weight = request.data.get('weight')
+        height = request.data.get('height')
+        # Initial Survey requires all fields
+        if not all([user_id, goal_id, weight, height]):
+            return Response({"error": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
+        # Call survey eligibility function
+        eligibility_response, eligibility_status = check_initial_survey_eligibility(user_id)
+        # Check if eligible for survey
+        if eligibility_response is not None:
+            return Response(eligibility_response, eligibility_status)
+        # Call update user goal function
+        update_goal_response, update_goal_status = update_user_goal(user_id, goal_id)
+        # Check if goal update failed
+        if update_goal_response is not None:
+            return Response(update_goal_response, update_goal_status)
+        # Call add physical health log function
+        physical_health_response, physical_health_status = add_physical_health_log(user_id, weight, height)
+        # Check if add physical health log failed
+        if physical_health_response is not None:
+            # Might want to reset goal to null (previous value)
+            update_user_goal(user_id, None)
+            return Response(physical_health_response, status=physical_health_status)
+        # Return the response
+        return Response({"success": "Survey completed successfully"}, status=status.HTTP_201_CREATED)

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials, Coach, GoalBank
+from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['user_id', 'email', 'first_name', 'last_name', 'gender', 'birth_date', 'goal', 'has_coach', 'hired_coach']
+        fields = ['user_id', 'email', 'first_name', 'last_name', 'gender', 'birth_date', 'goal', 'has_coach', 'hired_coach', 'created', 'last_update']
 
     def validate_email(self, value):
         queryset = User.objects.filter(email=value)
@@ -129,3 +129,8 @@ class CoachAcceptSerializer(serializers.Serializer):
             raise ValidationError('User has not requested this coach.')
 
         return value
+
+class PhysicalHealthLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhysicalHealthLog
+        fields = '__all__'
