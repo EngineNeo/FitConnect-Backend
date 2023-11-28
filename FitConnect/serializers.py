@@ -1,3 +1,4 @@
+import datetime
 from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
@@ -39,10 +40,19 @@ class CoachSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(read_only=True, source='user.last_name')
     gender = serializers.CharField(read_only=True, source='user.gender')
 
-    # age = today.date() - user.birth_date - ((today.month, today.day) < (birth.month, birth.day))
     class Meta:
         model = Coach
         fields = ['coach_id', 'user_id', 'goal', 'bio', 'cost', 'experience', 'first_name', 'last_name', 'gender'] 
+
+    def validate_cost(self, value):
+        if value < 0:
+            raise ValidationError('Cost cannot be negative.')
+        return value
+
+    def validate_experience(self, value):
+        if experience < 0:
+            raise ValidationError('Experience cannot be negative.')
+        return value
 
 class GoalSerializer(serializers.ModelSerializer):
     class Meta:
