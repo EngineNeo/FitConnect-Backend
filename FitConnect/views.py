@@ -1,12 +1,12 @@
 from django.core.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
-from .serializers import UserSerializer, UserCredentialsSerializer
-from .models import User, UserCredentials, Coach
+from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer
+from .models import User, UserCredentials, Coach, AuthToken
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
 from .services.initial_survey_eligibility import check_initial_survey_eligibility
@@ -77,7 +77,8 @@ class LoginView(APIView):
 
         if self.check_password(user_id, password): #Verify that the password was correct
             user_serializer = UserSerializer(user)
-            response={'token' : user.auth_token.key}
+            token = AuthToken.get_or_create(user_id=user_id)
+            response={'token' : token.key}
             if Coach.objects.filter(user_id=user_id).exists(): #Get user type by checking if user_id exists in the coach table
                 user_type = 'coach'
             else:
@@ -88,6 +89,97 @@ class LoginView(APIView):
         else:
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
 
+class CoachList(APIView):
+    def validate_search_params(self, params): 
+        # Validate query. Maybe make this a serializer later idk
+        goal = params.get('goal')
+
+        experience = params.get('experience')
+        if experience is not None: 
+            experience = int(experience)
+            print('experience=',experience)
+            if experience < 0:
+                raise ValidationError('Experience cannot be negative')
+
+        cost = params.get('cost')
+        if cost is not None:
+            cost = float(cost)
+            if cost < 0:
+                raise ValidationError('Cost cannot be negative')
+
+        return [goal, experience, cost]
+
+    def get(self, request):
+        try:
+            goal, min_experience, cost = self.validate_search_params(request.query_params)
+        except ValidationError as err:
+            return Response(err, status=status.HTTP_400_BAD_REQUEST)
+
+        #If search criteria is passed, filter the queryset
+        #Consider allowing filtering for multiple goals; max and min cost; max and min experience
+        coaches = Coach.objects.all()
+        if cost is not None:
+            coaches = coaches.filter(cost__lte=cost)
+        if goal is not None:
+            coaches = coaches.filter(goal__goal_id=goal)
+        if min_experience is not None:
+            coaches = coaches.filter(experience__gte=min_experience)
+
+        serializer = CoachSerializer(coaches, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class CoachDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Coach.objects.all()
+    serializer_class = CoachSerializer
+
+class RequestCoach(APIView):
+    def patch(self, request):
+        # expecting {'user' : user_id, 'coach' : coach_id}
+        request = CoachRequestSerializer(data=request.data)
+        if request.is_valid():
+            request.save()
+            return Response('Requested coach successfully', status=status.HTTP_200_OK)
+        else:
+            return Response(request.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AcceptClient(APIView):
+    def patch(self, request):
+        # expecting {'user' : user_id, 'coach' : coach_id}
+        request = CoachAcceptSerializer(data=request.data)
+        if request.is_valid():
+            request.save()
+            return Response('Accepted client successfully', status=status.HTTP_200_OK)
+        else:
+            return Response(request.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FireCoach(APIView):
+    def get_object(self, pk):
+        try:
+            user = User.objects.get(pk=pk)
+            return user
+        except User.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        user = self.get_object(pk)
+        if user is None:
+            return Response("User does not exist.", status=status.HTTP_400_BAD_REQUEST)
+
+        user_serializer = UserSerializer(user, data={'has_coach' : False, 'hired_coach' : None}, partial=True)
+        if user_serializer.is_valid():
+            user_serializer.save()
+            return Response('Successfully fired coach.', status=status.HTTP_200_OK)
+        else:
+            print('Invalid:', user_serializer.errors)
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CoachClients(APIView):
+    hired = None
+
+    def get(self, request, pk):
+        clients = User.objects.filter(has_coach=self.hired, hired_coach__coach_id=pk)
+        clients_serializer = UserSerializer(clients, many=True)
+        return Response(clients_serializer.data, status=status.HTTP_200_OK)
 
 # Requirements:
 # All fields filled, user goal is null, user has no physical health logs
