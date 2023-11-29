@@ -3,7 +3,8 @@ from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog
+from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest
+
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -75,7 +76,6 @@ class CoachRequestSerializer(serializers.Serializer):
         except User.DoesNotExist:
             print('User does not exist.')
             raise ValidationError('User does not exist.')
-
         if user_instance.has_coach:
             print('User already has a coach.')
             raise ValidationError('User already has a coach.')
@@ -133,4 +133,10 @@ class CoachAcceptSerializer(serializers.Serializer):
 class PhysicalHealthLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhysicalHealthLog
+        fields = '__all__'
+
+
+class BecomeCoachRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BecomeCoachRequest
         fields = '__all__'
