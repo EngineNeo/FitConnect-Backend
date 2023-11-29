@@ -6,7 +6,7 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer
-from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan
+from .models import AuthToken, CalorieLog, Coach, ExerciseInWorkoutPlan, MentalHealthLog, PhysicalHealthLog, User, UserCredentials, WaterLog, WorkoutLog, WorkoutPlan
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
 from .services.initial_survey_eligibility import check_initial_survey_eligibility
@@ -273,10 +273,22 @@ class UserDetail(APIView):
         if user is None:
             return Response('User does not exist', status=status.HTTP_400_BAD_REQUEST)
 
-        if Coach.objects.filter(user=user).exists():
-            clients = User.objects.filter(hired_coach__user=user)
+        if Coach.objects.filter(user=user).exists(): # Check if user is a coach
+            # Update all clients / requests to not have a coach anymore
+            coach = Coach.objects.get(user=user)
+            clients = User.objects.filter(hired_coach=coach)
             clients.update(has_coach=False, hired_coach=None)
             coach.delete()
 
-        user.delete()
+        # Delete all related data except messages
+        CalorieLog.objects.filter(user=user).delete()
+        WaterLog.objects.filter(user=user).delete()
+        MentalHealthLog.objects.filter(user=user).delete()
+        PhysicalHealthLog.objects.filter(user=user).delete()
+        WorkoutLog.objects.filter(user=user).delete()
+        WorkoutPlan.objects.filter(user=user).delete()
+
+        # Set user as inactive
+        user.is_active=False
+        user.save()
         return Response(status=status.HTTP_200_OK)

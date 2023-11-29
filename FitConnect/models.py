@@ -157,8 +157,8 @@ class MentalHealthLog(models.Model):
 
 class MessageLog(models.Model):
     message_id = models.AutoField(primary_key=True)
-    sender = models.ForeignKey('User', models.CASCADE)
-    recipient = models.ForeignKey('User', models.CASCADE, related_name='messagelog_recipient_set')
+    sender = models.ForeignKey('User', models.DO_NOTHING)
+    recipient = models.ForeignKey('User', models.DO_NOTHING, related_name='messagelog_recipient_set')
     message_text = models.TextField()
     sent_date = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)
@@ -225,6 +225,7 @@ class User(models.Model):
     goal = models.ForeignKey(GoalBank, models.DO_NOTHING, blank=True, null=True)
     has_coach = models.BooleanField(default=False)
     hired_coach = models.ForeignKey(Coach, models.SET_NULL, blank=True, null=True, related_name='user_hired_coach')
+    is_active = models.BooleanField(default=True)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 

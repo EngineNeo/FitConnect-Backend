@@ -58,6 +58,7 @@ CREATE TABLE user (
   goal_id INTEGER,
   has_coach BOOL NOT NULL DEFAULT FALSE, -- `Client requests coach` system
   hired_coach_id INTEGER, -- `Client requests coach` system
+  is_active BOOL NOT NULL DEFAULT TRUE,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (user_id),
