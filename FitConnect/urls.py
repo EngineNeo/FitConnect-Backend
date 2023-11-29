@@ -13,4 +13,5 @@ urlpatterns = [
     path('fitConnect/fireCoach/<int:pk>', FireCoach.as_view()),
     path('fitConnect/initial_survey', InitialSurveyView.as_view(), name='initial-survey'),
     path('fitConnect/create_workout_plan', create_workout_plan, name='create_workout_plan'),
+    path('fitConnect/users/<int:pk>', UserDetail.as_view(), name='coach'),
 ]
