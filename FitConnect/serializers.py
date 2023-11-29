@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog
+from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, ExerciseBank, EquipmentBank, MuscleGroupBank
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -134,3 +134,13 @@ class PhysicalHealthLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhysicalHealthLog
         fields = '__all__'
+
+
+class ExerciseSerializer(serializers.ModelSerializer):
+    muscle_group_name = serializers.CharField(source='muscle_group.name', read_only=True)
+    equipment_name = serializers.CharField(source='equipment.name', read_only=True)
+
+    class Meta:
+        model = ExerciseBank
+        fields = ['name', 'description', 'muscle_group_name', 'equipment_name']
+
