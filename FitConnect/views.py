@@ -1,17 +1,19 @@
 from django.core.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer
+from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, \
+    CoachAcceptSerializer, BecomeCoachRequestSerializer
 from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
 from .services.initial_survey_eligibility import check_initial_survey_eligibility
 from django.utils import timezone
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 import django, json
 
 
@@ -177,7 +179,6 @@ class FireCoach(APIView):
 
 class CoachClients(APIView):
     hired = None
-
     def get(self, request, pk):
         clients = User.objects.filter(has_coach=self.hired, hired_coach__coach_id=pk)
         clients_serializer = UserSerializer(clients, many=True)
@@ -214,6 +215,17 @@ class InitialSurveyView(APIView):
             return Response(physical_health_response, status=physical_health_status)
         # Return the response
         return Response({"success": "Survey completed successfully"}, status=status.HTTP_201_CREATED)
+
+# Requirements
+# All fields filled, user exists, goal exists, user did not already request to become coach, cost & exp are not negative
+class BecomeCoachRequestView(APIView):  # This is the coach initial survey
+    def post(self, request):
+        serializer = BecomeCoachRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": "Coach initial survey completed successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # Will return each error
+
 
 @csrf_exempt
 def create_workout_plan(request):
