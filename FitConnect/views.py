@@ -332,23 +332,4 @@ class DailySurveyView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-class CalorieLogList(generics.ListCreateAPIView):
-    queryset = CalorieLog.objects.all()
-    serializer_class = CalorieLogSerializer
-
-
-class CalorieLogDetails(generics.RetrieveDestroyAPIView):
-    queryset = CalorieLog.objects.all()
-    serializer_class = CalorieLogSerializer
-        
-
-class WaterLogList(generics.ListCreateAPIView):
-    queryset = WaterLog.objects.all()
-    serializer_class = WaterLogSerializer
-
-
-class WaterLogDetails(generics.RetrieveDestroyAPIView):
-    queryset = WaterLog.objects.all()
-    serializer_class = WaterLogSerializer
   
