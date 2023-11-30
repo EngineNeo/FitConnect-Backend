@@ -54,6 +54,7 @@ class CreateUserView(APIView):
 
         else:
             print('serializer was not valid')
+            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
