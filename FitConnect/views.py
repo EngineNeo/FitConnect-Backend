@@ -82,15 +82,16 @@ class LoginView(APIView):
 
         if self.check_password(user_id, password): #Verify that the password was correct
             user_serializer = UserSerializer(user)
-            token = AuthToken.get_or_create(user_id=user_id)
-            response={'token' : token.key}
-            if Coach.objects.filter(user_id=user_id).exists(): #Get user type by checking if user_id exists in the coach table
-                user_type = 'coach'
-            else:
-                user_type = 'user'
-            response.update({'user_type' : user_type})
+            
+            token, created = AuthToken.objects.get_or_create(user=user)
+            
+            response = {'token': token.key, 'user_type': 'user'}
+
+            if Coach.objects.filter(user_id=user_id).exists():
+                response['user_type'] = 'coach'
+            
             response.update(user_serializer.data)
-            return Response(response,status=status.HTTP_200_OK)
+            return Response(response, status=status.HTTP_200_OK)
         else:
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
 
