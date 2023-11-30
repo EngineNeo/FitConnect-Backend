@@ -216,13 +216,15 @@ class InitialSurveyView(APIView):
         # Return the response
         return Response({"success": "Survey completed successfully"}, status=status.HTTP_201_CREATED)
 
-class BecomeCoachRequestView(APIView):
-    def post(self, request, format=None):
+# Requirements
+# All fields filled, user exists, goal exists, user did not already request to become coach, cost & exp are not negative
+class BecomeCoachRequestView(APIView):  # This is the coach initial survey
+    def post(self, request):
         serializer = BecomeCoachRequestSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "Coach survey completed successfully"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "Coach initial survey completed successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # Will return each error
 
 
 @csrf_exempt
