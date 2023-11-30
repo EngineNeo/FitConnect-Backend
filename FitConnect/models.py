@@ -144,7 +144,7 @@ class MentalHealthLog(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.mental_health_id
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
@@ -269,7 +269,7 @@ class WaterLog(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.water_id
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()

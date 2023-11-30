@@ -5,7 +5,7 @@ from rest_framework import status, generics
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer
+from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer, DailySurveySerializer
 from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
@@ -260,6 +260,77 @@ def create_workout_plan(request):
         return JsonResponse({'status': 'success'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+class DailySurveyView(APIView):
+    # Sample JSON format for GET and POST requests
+    # These are attached to a user_id in the url, for example the following JSON could be posted to the endpoint:
+    # /fitConnect/daily_survey/1/
+
+    # {
+    #     "recorded_date": "2023-11-29",
+    #     "calorie_amount": 1500,
+    #     "water_amount": 1000,
+    #     "mood": "Happy"
+    # }
+
+    # Which would be for the user with user_id=1
+    # A GET request will return a list of JSON in the above format
+
+    def get(self, request, user_id):
+        try:
+            calorie_log = CalorieLog.objects.filter(user_id=user_id)
+            water_log = WaterLog.objects.filter(user_id=user_id)
+            mental_health_log = MentalHealthLog.objects.filter(user_id=user_id)
+
+            # Assuming that each User has entries for all three logs with the same recorded_date
+            data = []
+            for calorie_entry in calorie_log:
+                water_entry = water_log.filter(recorded_date=calorie_entry.recorded_date).first()
+                mental_health_entry = mental_health_log.filter(recorded_date=calorie_entry.recorded_date).first()
+
+                if mental_health_entry:
+                    mood = mental_health_entry.mood
+                else:
+                    mood = None
+
+                entry_data = {
+                    'recorded_date': calorie_entry.recorded_date,
+                    'calorie_amount': calorie_entry.amount,
+                    'water_amount': water_entry.amount,
+                    'mood': mood
+                }
+
+                data.append(entry_data)
+            
+            serializer = DailySurveySerializer(data, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+    def post(self, request, user_id):
+        try:
+            serializer = DailySurveySerializer(data=request.data)
+            if serializer.is_valid():
+                # This assumes that recorded_date, calorie_amount, water_amount, and mood are all required fields
+                recorded_date = serializer.validated_data['recorded_date']
+                calorie_amount = serializer.validated_data['calorie_amount']
+                water_amount = serializer.validated_data['water_amount']
+                mood = serializer.validated_data['mood']
+
+                # Save data to respective models
+                CalorieLog.objects.create(user_id=user_id, amount=calorie_amount, recorded_date=recorded_date)
+                WaterLog.objects.create(user_id=user_id, amount=water_amount, recorded_date=recorded_date)
+                MentalHealthLog.objects.create(user_id=user_id, mood=mood, recorded_date=recorded_date)
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class CalorieLogList(generics.ListCreateAPIView):

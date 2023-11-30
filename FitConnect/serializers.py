@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, CalorieLog, WaterLog
+from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, MentalHealthLog, CalorieLog, WaterLog
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -136,6 +136,12 @@ class PhysicalHealthLogSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class MentalHealthLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MentalHealthLog
+        fields = '__all__'
+
+
 class CalorieLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = CalorieLog
@@ -147,3 +153,9 @@ class WaterLogSerializer(serializers.ModelSerializer):
         model = WaterLog
         fields = ['water_id', 'user', 'amount', 'recorded_date', 'created', 'last_update']
 
+
+class DailySurveySerializer(serializers.Serializer):
+    recorded_date = serializers.DateField()
+    calorie_amount = serializers.IntegerField()
+    water_amount = serializers.IntegerField()
+    mood = serializers.CharField()

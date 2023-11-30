@@ -13,10 +13,5 @@ urlpatterns = [
     path('fitConnect/fireCoach/<int:pk>', FireCoach.as_view()),
     path('fitConnect/initial_survey', InitialSurveyView.as_view(), name='initial-survey'),
     path('fitConnect/create_workout_plan', create_workout_plan, name='create_workout_plan'),
-    
-    # These endpoint names are placeholders
-    path('fitConnect/calorie_log', CalorieLogList.as_view()),
-    path('fitConnect/calorie_log/<int:pk>/', CalorieLogDetails.as_view()),
-    path('fitConnect/water_log', WaterLogList.as_view()),
-    path('fitConnect/water_log/<int:pk>/', WaterLogDetails.as_view())
+    path('fitConnect/daily_survey/<int:user_id>/', DailySurveyView.as_view(), name='daily_survey')
 ]
