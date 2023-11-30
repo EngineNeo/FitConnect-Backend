@@ -303,6 +303,8 @@ class UserDetail(APIView):
         WorkoutPlan.objects.filter(user=user).delete()
 
         # Set user as inactive
+        user.has_coach=False
+        user.hired_coach=None
         user.is_active=False
         user.save()
         return Response(status=status.HTTP_200_OK)
