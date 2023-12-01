@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest
+from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, WorkoutPlan, ExerciseInWorkoutPlan, ExerciseBank
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -157,3 +157,25 @@ class BecomeCoachRequestSerializer(serializers.ModelSerializer):
         if cost < 0:
             raise serializers.ValidationError('cost can not be negative')
         return cost
+
+class ExerciseSerializer(serializers.ModelSerializer):
+    muscle_group_name = serializers.CharField(source='muscle_group.name', read_only=True)
+    equipment_name = serializers.CharField(source='equipment.name', read_only=True)
+
+    class Meta:
+        model = ExerciseBank
+        fields = ['name', 'description', 'muscle_group_name', 'equipment_name']
+
+class ExerciseInWorkoutPlanSerializer(serializers.ModelSerializer):
+    exercise = ExerciseSerializer(read_only=True) 
+
+    class Meta:
+        model = ExerciseInWorkoutPlan
+        fields = ['exercise_in_plan_id', 'plan_id', 'exercise', 'sets', 'reps', 'weight', 'duration_minutes']
+
+class WorkoutPlanSerializer(serializers.ModelSerializer):
+    plan_exercises = ExerciseInWorkoutPlanSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = WorkoutPlan
+        fields = ['plan_id', 'user_id', 'plan_name', 'creation_date', 'plan_exercises']

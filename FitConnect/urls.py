@@ -14,4 +14,6 @@ urlpatterns = [
     path('fitConnect/initial_survey', InitialSurveyView.as_view(), name='initial-survey'),
     path('fitConnect/create_workout_plan', create_workout_plan, name='create_workout_plan'),
     path('fitConnect/become_coach', BecomeCoachRequestView.as_view(), name='become-coach-request'),
+    path('fitConnect/users/<int:pk>/plans', WorkoutPlanList.as_view()),
+    path('fitConnect/plans', WorkoutPlanList.as_view()),
 ]

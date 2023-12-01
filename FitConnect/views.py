@@ -7,7 +7,7 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, \
-    CoachAcceptSerializer, BecomeCoachRequestSerializer
+    CoachAcceptSerializer, BecomeCoachRequestSerializer, WorkoutPlanSerializer
 from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
@@ -268,3 +268,11 @@ def create_workout_plan(request):
         return JsonResponse({'status': 'success'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+class WorkoutPlanList(APIView):
+    def get(self, request, pk=None):
+        plans = WorkoutPlan.objects.all()
+        if pk is not None:
+            plans = plans.filter(user__user_id=pk)
+        serializer = WorkoutPlanSerializer(plans, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

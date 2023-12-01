@@ -114,6 +114,7 @@ class ExerciseBank(models.Model):
     description = models.TextField(blank=True, null=True)
     muscle_group = models.ForeignKey('MuscleGroupBank', models.DO_NOTHING, blank=True, null=True)
     equipment = models.ForeignKey(EquipmentBank, models.DO_NOTHING, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
@@ -131,7 +132,7 @@ class ExerciseBank(models.Model):
 
 class ExerciseInWorkoutPlan(models.Model):
     exercise_in_plan_id = models.AutoField(primary_key=True)
-    plan = models.ForeignKey('WorkoutPlan', models.DO_NOTHING)
+    plan = models.ForeignKey('WorkoutPlan', models.DO_NOTHING, related_name="plan_exercises")
     exercise = models.ForeignKey(ExerciseBank, models.DO_NOTHING)
     sets = models.IntegerField(blank=True, null=True)
     reps = models.IntegerField(blank=True, null=True)
@@ -345,7 +346,7 @@ class WorkoutPlan(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.plan_name
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
