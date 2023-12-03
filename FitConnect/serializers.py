@@ -164,18 +164,49 @@ class ExerciseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExerciseBank
-        fields = ['name', 'description', 'muscle_group_name', 'equipment_name']
+        fields = ['exercise_id', 'name', 'description', 'muscle_group_name', 'equipment_name']
 
 class ExerciseInWorkoutPlanSerializer(serializers.ModelSerializer):
-    exercise = ExerciseSerializer(read_only=True) 
+    class RelatedExerciseField(serializers.PrimaryKeyRelatedField):
+        """
+        Allows ExerciseInWorkoutPlanSerializer to take an exercise_id for the exercise instead of an instance. 
+        """
+        def to_representation(self, value):
+            value = super().to_representation(value)
+            exercise = self.queryset.get(pk=value)
+            return ExerciseSerializer(exercise).data
+
+    exercise = RelatedExerciseField(queryset=ExerciseBank.objects.all())
 
     class Meta:
         model = ExerciseInWorkoutPlan
         fields = ['exercise_in_plan_id', 'plan_id', 'exercise', 'sets', 'reps', 'weight', 'duration_minutes']
 
 class WorkoutPlanSerializer(serializers.ModelSerializer):
-    plan_exercises = ExerciseInWorkoutPlanSerializer(many=True, read_only=True)
+    exercises = ExerciseInWorkoutPlanSerializer(many=True, read_only=True)
 
     class Meta:
         model = WorkoutPlan
-        fields = ['plan_id', 'user_id', 'plan_name', 'creation_date', 'plan_exercises']
+        fields = ['plan_id', 'user_id', 'plan_name', 'creation_date', 'exercises']
+
+    def update(self, instance, validated_data):
+        print("data:", validated_data)
+        exercises = validated_data.pop("exercises", None)
+        print("exercises:", exercises)
+
+        for exercise in exercises:
+            exercise['exercise'] = exercise.pop('exercise_id')
+
+        updated_exercises = [exercise for exercise in exercises if 'exercise_in_plan_id' in exercise]
+        for exercise in updated_exercises:
+            exercises.remove(exercise)
+
+        exercise_serializer = ExerciseInWorkoutPlanSerializer(data=exercises, many=True)
+        if exercise_serializer.is_valid():
+            exercise_serializer.save(plan=instance)
+        else:
+            raise ValidationError(exercise_serializer.errors)
+
+        instance.plan_name = validated_data.get("plan_name", instance.plan_name)
+        instance.save()
+        return instance

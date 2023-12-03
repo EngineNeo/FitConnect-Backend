@@ -169,7 +169,7 @@ class FireCoach(APIView):
     def patch(self, request, pk):
         user = self.get_object(pk)
         if user is None:
-            return Response("User does not exist.", status=status.HTTP_400_BAD_REQUEST)
+            return Response("User does not exist.", status=status.HTTP_404_NOT_FOUND)
 
         user_serializer = UserSerializer(user, data={'has_coach' : False, 'hired_coach' : None}, partial=True)
         if user_serializer.is_valid():
@@ -276,3 +276,33 @@ class WorkoutPlanList(APIView):
             plans = plans.filter(user__user_id=pk)
         serializer = WorkoutPlanSerializer(plans, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class WorkoutPlanDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return WorkoutPlan.objects.get(pk=pk)
+        except WorkoutPlan.DoesNotExist: 
+            return None
+
+    def get(self, request, pk):
+        plan = self.get_object(pk)
+        if plan is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = WorkoutPlanSerializer(plan)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        plan = self.get_object(pk)
+        if plan is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        exercises = request.data.pop("exercises", None)
+        serializer = WorkoutPlanSerializer(plan, data=request.data, partial=True)
+        print(request.data)
+        if serializer.is_valid():
+            try:
+                serializer.save(exercises=exercises)
+            except ValidationError as error:
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

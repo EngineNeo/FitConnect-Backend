@@ -16,4 +16,5 @@ urlpatterns = [
     path('fitConnect/become_coach', BecomeCoachRequestView.as_view(), name='become-coach-request'),
     path('fitConnect/users/<int:pk>/plans', WorkoutPlanList.as_view()),
     path('fitConnect/plans', WorkoutPlanList.as_view()),
+    path('fitConnect/plans/<int:pk>', WorkoutPlanDetail.as_view()),
 ]
