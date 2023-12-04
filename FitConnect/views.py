@@ -278,6 +278,12 @@ class DailySurveyView(APIView):
     # A GET request will return a list of JSON in the above format
 
     def get(self, request, user_id):
+        # Check to see if the requested user exists in the database
+        try:
+            user = User.objects.get(user_id=user_id)
+        except User.DoesNotExist as e:
+            return Response({'error:': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             calorie_log = CalorieLog.objects.filter(user_id=user_id)
             water_log = WaterLog.objects.filter(user_id=user_id)
@@ -311,6 +317,12 @@ class DailySurveyView(APIView):
     
 
     def post(self, request, user_id):
+        # Check to see if the requested user exists in the database
+        try:
+            user = User.objects.get(user_id=user_id)
+        except User.DoesNotExist as e:
+            return Response({'error:': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
             serializer = DailySurveySerializer(data=request.data)
             if serializer.is_valid():
