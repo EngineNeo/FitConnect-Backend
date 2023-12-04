@@ -15,6 +15,11 @@ from .services.initial_survey_eligibility import check_initial_survey_eligibilit
 from django.utils import timezone
 from django.http import JsonResponse, Http404
 import django, json
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from .models import User, MessageLog
+from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 
 
 def validate_password(password):
@@ -267,3 +272,30 @@ def create_workout_plan(request):
         return JsonResponse({'status': 'success'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+@csrf_exempt
+def create_message(request):
+    if request.method == 'POST':
+        sender_id = request.POST.get('sender_id')
+        recipient_id = request.POST.get('recipient_id')
+        message_text = request.POST.get('message_text')
+
+        sender = get_object_or_404(User, user_id=sender_id)
+        recipient = get_object_or_404(User, user_id=recipient_id)
+
+        message = MessageLog(sender=sender, recipient=recipient, message_text=message_text)
+        message.save()
+
+        return JsonResponse({'status': 'success'})
+
+@csrf_exempt
+def get_messages(request, sender_id, recipient_id):
+    messages = MessageLog.objects.filter(
+        (Q(sender_id=sender_id) & Q(recipient_id=recipient_id)) |
+        (Q(sender_id=recipient_id) & Q(recipient_id=sender_id))
+    ).order_by('sent_date')
+
+    data = [{'sender': msg.sender.email, 'recipient': msg.recipient.email, 'text': msg.message_text} for msg in messages]
+
+    return JsonResponse({'messages': data})

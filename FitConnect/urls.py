@@ -14,4 +14,6 @@ urlpatterns = [
     path('fitConnect/initial_survey', InitialSurveyView.as_view(), name='initial-survey'),
     path('fitConnect/create_workout_plan', create_workout_plan, name='create_workout_plan'),
     path('fitConnect/become_coach', BecomeCoachRequestView.as_view(), name='become-coach-request'),
+    path('fitConnect/create_message/', create_message, name='create_message'),
+    path('fitConnect/get_messages/<int:sender_id>/<int:recipient_id>/', get_messages, name='get_messages'),
 ]
