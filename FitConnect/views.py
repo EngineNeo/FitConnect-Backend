@@ -261,3 +261,29 @@ class VisitorExerciseList(generics.ListAPIView):
     queryset = ExerciseBank.objects.all()
     serializer_class = ExerciseSerializer
 
+
+
+class SearchExercises(APIView):
+    def get(self, request, *args, **kwargs):
+        # Get the request parameters
+        name = request.GET.get('name', None)
+        muscle_group = request.GET.get('muscle_group', None)
+        equipment = request.GET.get('equipment', None)
+
+        # Filter through queryset
+        queryset = ExerciseBank.objects.all()
+
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+
+        if muscle_group:
+            queryset = queryset.filter(muscle_group__name__icontains=muscle_group)
+
+        if equipment:
+            queryset = queryset.filter(equipment__name__icontains=equipment)
+
+        
+        serializer = ExerciseSerializer(queryset, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
