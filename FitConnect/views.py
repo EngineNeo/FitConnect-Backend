@@ -7,7 +7,7 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, \
-    CoachAcceptSerializer, BecomeCoachRequestSerializer, WorkoutPlanSerializer
+    CoachAcceptSerializer, BecomeCoachRequestSerializer, WorkoutPlanSerializer, ExerciseInWorkoutPlanSerializer
 from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
@@ -306,3 +306,11 @@ class WorkoutPlanDetail(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ExerciseInWorkoutPlanList(generics.ListCreateAPIView):
+    queryset = Coach.objects.all()
+    serializer_class = ExerciseInWorkoutPlanSerializer
+
+class ExerciseInWorkoutPlanDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Coach.objects.all()
+    serializer_class = ExerciseInWorkoutPlanSerializer
