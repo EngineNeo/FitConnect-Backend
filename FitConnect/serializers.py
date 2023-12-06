@@ -136,11 +136,28 @@ class PhysicalHealthLogSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ExerciseSerializer(serializers.ModelSerializer):
+class MuscleGroupBankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MuscleGroupBank
+        fields = '__all__'
+
+
+class EquipmentBankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EquipmentBank
+        fields = '__all__'
+
+
+class ExerciseListSerializer(serializers.ModelSerializer):
     muscle_group_name = serializers.CharField(source='muscle_group.name', read_only=True)
     equipment_name = serializers.CharField(source='equipment.name', read_only=True)
 
     class Meta:
         model = ExerciseBank
         fields = ['name', 'description', 'muscle_group_name', 'equipment_name']
+
+class ExerciseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExerciseBank
+        fields = ['name']
 

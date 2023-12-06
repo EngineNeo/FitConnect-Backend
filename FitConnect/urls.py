@@ -13,6 +13,9 @@ urlpatterns = [
     path('fitConnect/fireCoach/<int:pk>', FireCoach.as_view()),
     path('fitConnect/initial_survey', InitialSurveyView.as_view(), name='initial-survey'),
     path('fitConnect/create_workout_plan', create_workout_plan, name='create_workout_plan'),
-    path('fitConnect/exercises', VisitorExerciseList.as_view()),
+    path('fitConnect/exercises', ExerciseList.as_view()),
+    path('fitConnect/exercises/<int:pk>', ExerciseListId.as_view()),
+    path('fitConnect/muscle_groups', MuscleGroupList.as_view()),
+    path('fitConnect/equipment', EquipmentList.as_view()),
     path('fitConnect/exercises/search/', SearchExercises.as_view())
 ]
