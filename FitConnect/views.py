@@ -270,22 +270,13 @@ def create_workout_plan(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 class UserDetail(APIView):
-    def get_object(self, pk):
-        try:
-            user = User.objects.get(pk=pk)
-            return user
-        except User.DoesNotExist:
-            return None
-
     def get(self, request, pk):
-        user = self.get_object(pk)
+        user = get_object_or_404(User, user_id=pk)
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, pk):
-        user = self.get_object(pk)
-        if user is None:
-            return Response('User does not exist', status=status.HTTP_400_BAD_REQUEST)
+        user = get_object_or_404(User, user_id=pk)
 
         if Coach.objects.filter(user=user).exists(): # Check if user is a coach
             # Update all clients / requests to not have a coach anymore
