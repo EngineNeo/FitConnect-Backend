@@ -69,8 +69,8 @@ class LoginView(APIView):
         except VerifyMismatchError as e:
             return False
 
-    def get(self, request):
-        email = request.query_params.get("email")
+    def post(self, request):
+        email = request.data.get("email")
         try:
             django.core.validators.validate_email(email) #Check that email is valid before hitting db
             user = User.objects.get(email=email)         #Will throw exception if user does not exist
@@ -78,18 +78,18 @@ class LoginView(APIView):
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
 
         user_id = getattr(user, 'user_id')
-        password = request.query_params.get("password")
+        password = request.data.get("password")
 
         if self.check_password(user_id, password): #Verify that the password was correct
             user_serializer = UserSerializer(user)
-            
+
             token, created = AuthToken.objects.get_or_create(user=user)
-            
+
             response = {'token': token.key, 'user_type': 'user'}
 
             if Coach.objects.filter(user_id=user_id).exists():
                 response['user_type'] = 'coach'
-            
+
             response.update(user_serializer.data)
             return Response(response, status=status.HTTP_200_OK)
         else:
