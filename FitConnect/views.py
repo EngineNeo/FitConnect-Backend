@@ -8,7 +8,7 @@ from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, \
     CoachAcceptSerializer, BecomeCoachRequestSerializer
-from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan
+from .models import AuthToken, CalorieLog, Coach, ExerciseInWorkoutPlan, MentalHealthLog, PhysicalHealthLog, User, UserCredentials, WaterLog, WorkoutLog, WorkoutPlan
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
 from .services.initial_survey_eligibility import check_initial_survey_eligibility
@@ -73,7 +73,7 @@ class LoginView(APIView):
         email = request.query_params.get("email")
         try:
             django.core.validators.validate_email(email) #Check that email is valid before hitting db
-            user = User.objects.get(email=email)         #Will throw exception if user does not exist
+            user = User.objects.get(email=email, is_active=True)         #Will throw exception if user does not exist
         except:
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -268,3 +268,34 @@ def create_workout_plan(request):
         return JsonResponse({'status': 'success'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+class UserDetail(APIView):
+    def get(self, request, pk):
+        user = get_object_or_404(User, user_id=pk)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        user = get_object_or_404(User, user_id=pk)
+
+        if Coach.objects.filter(user=user).exists(): # Check if user is a coach
+            # Update all clients / requests to not have a coach anymore
+            coach = Coach.objects.get(user=user)
+            clients = User.objects.filter(hired_coach=coach)
+            clients.update(has_coach=False, hired_coach=None)
+            coach.delete()
+
+        # Delete all related data except messages
+        CalorieLog.objects.filter(user=user).delete()
+        WaterLog.objects.filter(user=user).delete()
+        MentalHealthLog.objects.filter(user=user).delete()
+        PhysicalHealthLog.objects.filter(user=user).delete()
+        WorkoutLog.objects.filter(user=user).delete()
+        WorkoutPlan.objects.filter(user=user).delete()
+
+        # Set user as inactive
+        user.has_coach=False
+        user.hired_coach=None
+        user.is_active=False
+        user.save()
+        return Response(status=status.HTTP_200_OK)

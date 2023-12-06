@@ -50,7 +50,7 @@ class BecomeCoachRequest(models.Model):
 
 class CalorieLog(models.Model):
     calorie_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey('User', models.DO_NOTHING)
+    user = models.ForeignKey('User', models.CASCADE)
     amount = models.PositiveIntegerField()
     recorded_date = models.DateField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)
@@ -131,7 +131,7 @@ class ExerciseBank(models.Model):
 
 class ExerciseInWorkoutPlan(models.Model):
     exercise_in_plan_id = models.AutoField(primary_key=True)
-    plan = models.ForeignKey('WorkoutPlan', models.DO_NOTHING)
+    plan = models.ForeignKey('WorkoutPlan', models.CASCADE)
     exercise = models.ForeignKey(ExerciseBank, models.DO_NOTHING)
     sets = models.IntegerField(blank=True, null=True)
     reps = models.IntegerField(blank=True, null=True)
@@ -172,7 +172,7 @@ class GoalBank(models.Model):
 
 class MentalHealthLog(models.Model):
     mental_health_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey('User', models.DO_NOTHING)
+    user = models.ForeignKey('User', models.CASCADE)
     mood = models.CharField(max_length=7)
     recorded_date = models.DateField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)
@@ -231,7 +231,7 @@ class MuscleGroupBank(models.Model):
 
 class PhysicalHealthLog(models.Model):
     physical_health_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey('User', models.DO_NOTHING)
+    user = models.ForeignKey('User', models.CASCADE)
     weight = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     height = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     recorded_date = models.DateField(default=timezone.now)
@@ -259,7 +259,8 @@ class User(models.Model):
     birth_date = models.DateField(blank=True, null=True)
     goal = models.ForeignKey(GoalBank, models.DO_NOTHING, blank=True, null=True)
     has_coach = models.BooleanField(default=False)
-    hired_coach = models.ForeignKey(Coach, models.DO_NOTHING, blank=True, null=True, related_name='user_hired_coach')
+    hired_coach = models.ForeignKey(Coach, models.SET_NULL, blank=True, null=True, related_name='user_hired_coach')
+    is_active = models.BooleanField(default=True)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
@@ -276,7 +277,7 @@ class User(models.Model):
 
 
 class UserCredentials(models.Model):
-    user = models.OneToOneField(User, models.DO_NOTHING, primary_key=True)
+    user = models.OneToOneField(User, models.CASCADE, primary_key=True)
     hashed_password = models.CharField(max_length=120)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
@@ -295,7 +296,7 @@ class UserCredentials(models.Model):
 
 class WaterLog(models.Model):
     water_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, models.DO_NOTHING)
+    user = models.ForeignKey(User, models.CASCADE)
     amount = models.IntegerField()
     recorded_date = models.DateField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)
@@ -315,7 +316,7 @@ class WaterLog(models.Model):
 
 class WorkoutLog(models.Model):
     workout_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, models.DO_NOTHING)
+    user = models.ForeignKey(User, models.CASCADE)
     exercise_in_plan = models.ForeignKey(ExerciseInWorkoutPlan, models.DO_NOTHING)
     reps = models.IntegerField(blank=True, null=True)
     weight = models.IntegerField(blank=True, null=True)
@@ -338,7 +339,7 @@ class WorkoutLog(models.Model):
 
 class WorkoutPlan(models.Model):
     plan_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, models.DO_NOTHING)
+    user = models.ForeignKey(User, models.CASCADE)
     plan_name = models.CharField(max_length=255)
     creation_date = models.DateField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)
