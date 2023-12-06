@@ -270,22 +270,19 @@ def create_workout_plan(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 class WorkoutPlanList(APIView):
-    def get(self, request, pk=None):
+    def get(self, request, user_id=None):
         plans = WorkoutPlan.objects.all()
-        if pk is not None:
-            plans = plans.filter(user__user_id=pk)
+        plan_name = request.query_params.get("name")
+        if user_id is not None:
+            plans = plans.filter(user__user_id=user_id)
+        if plan_name:
+            plans = plans.filter(plan_name__icontains=plan_name)
         serializer = WorkoutPlanSerializer(plans, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class WorkoutPlanDetail(APIView):
-    def get_object(self, pk):
-        try:
-            return WorkoutPlan.objects.get(pk=pk)
-        except WorkoutPlan.DoesNotExist: 
-            return None
-
     def get(self, request, pk):
-        plan = self.get_object(pk)
+        plan = get_object_or_404(WorkoutPlan, pk=pk)
         if plan is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = WorkoutPlanSerializer(plan)
