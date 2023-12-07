@@ -38,6 +38,7 @@ class BecomeCoachRequest(models.Model):
     goal = models.ForeignKey('GoalBank', models.DO_NOTHING)
     experience = models.IntegerField()
     cost = models.DecimalField(max_digits=10, decimal_places=2)
+    bio = models.TextField()
     is_approved = models.IntegerField(blank=True, null=True)
     decided_by = models.ForeignKey(Admin, models.DO_NOTHING, db_column='decided_by', blank=True, null=True)
     created = models.DateTimeField(default=timezone.now)
