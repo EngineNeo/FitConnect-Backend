@@ -149,11 +149,17 @@ class BecomeCoachRequestSerializer(serializers.ModelSerializer):
         fields = '__all__'
     # Django auto checks if user exists, goal exists, and user did not already submit a 'become coach' request
     def validate_experience(self, experience):
-        if experience < 0:
-            raise serializers.ValidationError('experience can not be negative')
+        if experience < 1 or experience > 3:
+            raise serializers.ValidationError('experience must be 1-3 inclusive')
         return experience
 
     def validate_cost(self, cost):
         if cost < 0:
             raise serializers.ValidationError('cost can not be negative')
         return cost
+
+    def validate_filled(self, data):
+        required_fields = ['user_id', 'goal_id', 'experience', 'cost', 'bio']
+        for field in required_fields:
+            if not data.get(field):
+                raise serializers.ValidationError(f'{field} is required')
