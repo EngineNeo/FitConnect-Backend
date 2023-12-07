@@ -304,10 +304,25 @@ class WorkoutPlanDetail(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ExerciseInWorkoutPlanList(generics.ListCreateAPIView):
-    queryset = Coach.objects.all()
-    serializer_class = ExerciseInWorkoutPlanSerializer
+class ExerciseInWorkoutPlanView(APIView):
+    def get(self, request, pk=None):
+        if pk is None:
+            queryset = ExerciseInWorkoutPlan.objects.all()
+            serializer = ExerciseInWorkoutPlanSerializer(queryset, many=True)
+        else:
+            exercise_in_plan = get_object_or_404(ExerciseInWorkoutPlan, pk=pk)
+            serializer = ExerciseInWorkoutPlanSerializer(exercise_in_plan)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-class ExerciseInWorkoutPlanDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Coach.objects.all()
-    serializer_class = ExerciseInWorkoutPlanSerializer
+    def post(self, request):
+        serializer = ExerciseInWorkoutPlanSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        exercise_in_plan = get_object_or_404(ExerciseInWorkoutPlan, pk=pk)
+        exercise_in_plan.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

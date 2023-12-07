@@ -166,6 +166,7 @@ class ExerciseSerializer(serializers.ModelSerializer):
         model = ExerciseBank
         fields = ['exercise_id', 'name', 'description', 'muscle_group_name', 'equipment_name']
 
+
 class ExerciseInWorkoutPlanSerializer(serializers.ModelSerializer):
     class RelatedExerciseField(serializers.PrimaryKeyRelatedField):
         """
@@ -182,6 +183,18 @@ class ExerciseInWorkoutPlanSerializer(serializers.ModelSerializer):
         model = ExerciseInWorkoutPlan
         fields = ['exercise_in_plan_id', 'plan_id', 'exercise', 'sets', 'reps', 'weight', 'duration_minutes']
 
+    def validate_plan_id(self, value):
+        if not WorkoutPlan.objects.filter(pk=value).exists():
+            raise ValidationError('Plan does not exist')
+        else:
+            return value
+
+    def create(self, validated_data):
+        plan_id = validated_data.pop('plan_id')
+        plan = WorkoutPlan.objects.get(pk=plan_id)
+        return ExerciseInWorkoutPlan.objects.create(**validated_data, plan=plan)
+
+
 class WorkoutPlanSerializer(serializers.ModelSerializer):
     exercises = ExerciseInWorkoutPlanSerializer(many=True, read_only=True)
 
@@ -189,6 +202,7 @@ class WorkoutPlanSerializer(serializers.ModelSerializer):
         model = WorkoutPlan
         fields = ['plan_id', 'user_id', 'plan_name', 'creation_date', 'exercises']
 
+    '''
     def update(self, instance, validated_data):
         print("data:", validated_data)
         exercises = validated_data.pop("exercises", None)
@@ -210,3 +224,4 @@ class WorkoutPlanSerializer(serializers.ModelSerializer):
         instance.plan_name = validated_data.get("plan_name", instance.plan_name)
         instance.save()
         return instance
+    '''
