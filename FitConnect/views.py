@@ -95,6 +95,13 @@ class LoginView(APIView):
         else:
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
 
+class LogoutView(APIView):
+    def post(self, request):
+        user = request.data.get('user_id')
+        token = get_object_or_404(AuthToken, user__user_id=user)
+        token.delete()
+        return Response(status=status.HTTP_200_OK)
+
 class CoachList(APIView):
     def validate_search_params(self, params): 
         # Validate query. Maybe make this a serializer later idk
