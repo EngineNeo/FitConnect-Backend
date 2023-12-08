@@ -7,8 +7,6 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
 
-
-from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer, DailySurveySerializer, BecomeCoachRequestSerializer, ExerciseSerializer, ExerciseListSerializer, MuscleGroupBankSerializer, EquipmentBankSerializer, ViewBecomeCoachRequestSerializer, DomCoachSerializer, DomExerciseSerializer
 from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan, ExerciseBank, MuscleGroupBank, EquipmentBank, BecomeCoachRequest
 
 from .services.physical_health import add_physical_health_log
