@@ -18,7 +18,7 @@ urlpatterns = [
     path('fitConnect/exercises/<int:pk>', ExerciseListId.as_view()),
     path('fitConnect/muscle_groups', MuscleGroupList.as_view()),
     path('fitConnect/equipment', EquipmentList.as_view()),
-    path('fitConnect/exercises/search/', SearchExercises.as_view())
+    path('fitConnect/exercises/search/', SearchExercises.as_view()),
 
     path('fitConnect/become_coach', BecomeCoachRequestView.as_view(), name='become-coach-request'),
 
@@ -26,3 +26,4 @@ urlpatterns = [
     path('fitConnect/edit_exercise_bank', EditExerciseBankView.as_view()),
 
     path('fitConnect/logout/', LogoutView.as_view(), name='logout'),
+]
