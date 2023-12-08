@@ -3,7 +3,8 @@ from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest
+
+from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, ExerciseBank, EquipmentBank, MuscleGroupBank
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -143,6 +144,33 @@ class PhysicalHealthLogSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+class MuscleGroupBankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MuscleGroupBank
+        fields = '__all__'
+
+
+class EquipmentBankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EquipmentBank
+        fields = '__all__'
+
+
+class ExerciseListSerializer(serializers.ModelSerializer):
+    muscle_group_name = serializers.CharField(source='muscle_group.name', read_only=True)
+    equipment_name = serializers.CharField(source='equipment.name', read_only=True)
+
+    class Meta:
+        model = ExerciseBank
+        fields = ['name', 'description', 'muscle_group_name', 'equipment_name']
+
+class ExerciseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExerciseBank
+        fields = ['name']
+
+
 class BecomeCoachRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = BecomeCoachRequest
@@ -163,3 +191,4 @@ class BecomeCoachRequestSerializer(serializers.ModelSerializer):
         for field in required_fields:
             if not data.get(field):
                 raise serializers.ValidationError(f'{field} is required')
+
