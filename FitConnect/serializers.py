@@ -163,3 +163,14 @@ class BecomeCoachRequestSerializer(serializers.ModelSerializer):
         for field in required_fields:
             if not data.get(field):
                 raise serializers.ValidationError(f'{field} is required')
+
+class ViewBecomeCoachRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BecomeCoachRequest
+        fields = ['user_id', 'goal_id', 'experience', 'cost', 'bio']
+
+
+class DomCoachSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coach
+        fields = '__all__'

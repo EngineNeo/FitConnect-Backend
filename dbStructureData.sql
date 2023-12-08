@@ -39,6 +39,7 @@ CREATE TABLE exercise_bank (
   description TEXT,
   muscle_group_id INTEGER,
   equipment_id INTEGER,
+  is_active BOOL DEFAULT TRUE NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (exercise_id),
