@@ -1,17 +1,20 @@
 from django.core.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer, ExerciseSerializer, ExerciseListSerializer, MuscleGroupBankSerializer, EquipmentBankSerializer
+
+from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer, BecomeCoachRequestSerializer, ExerciseSerializer, ExerciseListSerializer, MuscleGroupBankSerializer, EquipmentBankSerializer
 from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan, ExerciseBank, MuscleGroupBank, EquipmentBank
+
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
 from .services.initial_survey_eligibility import check_initial_survey_eligibility
 from django.utils import timezone
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 import django, json
 
 
@@ -52,6 +55,7 @@ class CreateUserView(APIView):
 
         else:
             print('serializer was not valid')
+            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -66,8 +70,8 @@ class LoginView(APIView):
         except VerifyMismatchError as e:
             return False
 
-    def get(self, request):
-        email = request.query_params.get("email")
+    def post(self, request):
+        email = request.data.get("email")
         try:
             django.core.validators.validate_email(email) #Check that email is valid before hitting db
             user = User.objects.get(email=email)         #Will throw exception if user does not exist
@@ -75,21 +79,29 @@ class LoginView(APIView):
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
 
         user_id = getattr(user, 'user_id')
-        password = request.query_params.get("password")
+        password = request.data.get("password")
 
         if self.check_password(user_id, password): #Verify that the password was correct
             user_serializer = UserSerializer(user)
-            token = AuthToken.get_or_create(user_id=user_id)
-            response={'token' : token.key}
-            if Coach.objects.filter(user_id=user_id).exists(): #Get user type by checking if user_id exists in the coach table
-                user_type = 'coach'
-            else:
-                user_type = 'user'
-            response.update({'user_type' : user_type})
+
+            token, created = AuthToken.objects.get_or_create(user=user)
+
+            response = {'token': token.key, 'user_type': 'user'}
+
+            if Coach.objects.filter(user_id=user_id).exists():
+                response['user_type'] = 'coach'
+
             response.update(user_serializer.data)
-            return Response(response,status=status.HTTP_200_OK)
+            return Response(response, status=status.HTTP_200_OK)
         else:
             return Response({'Error' : 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
+
+class LogoutView(APIView):
+    def post(self, request):
+        user = request.data.get('user_id')
+        token = get_object_or_404(AuthToken, user__user_id=user)
+        token.delete()
+        return Response(status=status.HTTP_200_OK)
 
 class CoachList(APIView):
     def validate_search_params(self, params): 
@@ -177,7 +189,6 @@ class FireCoach(APIView):
 
 class CoachClients(APIView):
     hired = None
-
     def get(self, request, pk):
         clients = User.objects.filter(has_coach=self.hired, hired_coach__coach_id=pk)
         clients_serializer = UserSerializer(clients, many=True)
@@ -214,6 +225,17 @@ class InitialSurveyView(APIView):
             return Response(physical_health_response, status=physical_health_status)
         # Return the response
         return Response({"success": "Survey completed successfully"}, status=status.HTTP_201_CREATED)
+
+# Requirements
+# All fields filled, user exists, goal exists, user did not already request to become coach, cost & exp are not negative
+class BecomeCoachRequestView(APIView):  # This is the coach initial survey
+    def post(self, request):
+        serializer = BecomeCoachRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": "Coach initial survey completed successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # Will return each error
+
 
 @csrf_exempt
 def create_workout_plan(request):
@@ -298,3 +320,4 @@ class SearchExercises(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+

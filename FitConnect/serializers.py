@@ -3,7 +3,9 @@ from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, ExerciseBank, EquipmentBank, MuscleGroupBank
+
+from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, ExerciseBank, EquipmentBank, MuscleGroupBank
+
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -13,7 +15,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['user_id', 'email', 'first_name', 'last_name', 'gender', 'birth_date', 'goal', 'has_coach', 'hired_coach', 'created', 'last_update']
+        fields = ['user_id', 'email', 'first_name', 'last_name', 'gender', 'birth_date', 'goal', 'has_coach',
+                  'hired_coach', 'created', 'last_update']
 
     def validate_email(self, value):
         queryset = User.objects.filter(email=value)
@@ -29,10 +32,12 @@ class UserSerializer(serializers.ModelSerializer):
                 raise ValidationError('User must have a hired coach if has_coach is True')
         return value
 
+
 class UserCredentialsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserCredentials
-        fields = ['user','hashed_password']
+        fields = ['user', 'hashed_password']
+
 
 class CoachSerializer(serializers.ModelSerializer):
     goal = serializers.StringRelatedField(many=False)
@@ -42,7 +47,7 @@ class CoachSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Coach
-        fields = ['coach_id', 'user_id', 'goal', 'bio', 'cost', 'experience', 'first_name', 'last_name', 'gender'] 
+        fields = ['coach_id', 'user_id', 'goal', 'bio', 'cost', 'experience', 'first_name', 'last_name', 'gender']
 
     def validate_cost(self, value):
         if value < 0:
@@ -54,10 +59,12 @@ class CoachSerializer(serializers.ModelSerializer):
             raise ValidationError('Experience cannot be negative.')
         return value
 
+
 class GoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = GoalBank
         fields = ['goal_id', 'goal_name']
+
 
 class CoachRequestSerializer(serializers.Serializer):
     user = serializers.IntegerField()
@@ -75,7 +82,6 @@ class CoachRequestSerializer(serializers.Serializer):
         except User.DoesNotExist:
             print('User does not exist.')
             raise ValidationError('User does not exist.')
-
         if user_instance.has_coach:
             print('User already has a coach.')
             raise ValidationError('User already has a coach.')
@@ -90,6 +96,7 @@ class CoachRequestSerializer(serializers.Serializer):
             print('Coach does not exist.')
             raise ValidationError('Requested coach does not exist.')
         return value
+
 
 class CoachAcceptSerializer(serializers.Serializer):
     user = serializers.IntegerField()
@@ -130,10 +137,12 @@ class CoachAcceptSerializer(serializers.Serializer):
 
         return value
 
+
 class PhysicalHealthLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhysicalHealthLog
         fields = '__all__'
+
 
 
 class MuscleGroupBankSerializer(serializers.ModelSerializer):
@@ -160,4 +169,26 @@ class ExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExerciseBank
         fields = ['name']
+
+
+class BecomeCoachRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BecomeCoachRequest
+        fields = '__all__'
+    # Django auto checks if user exists, goal exists, and user did not already submit a 'become coach' request
+    def validate_experience(self, experience):
+        if experience < 1 or experience > 3:
+            raise serializers.ValidationError('experience must be 1-3 inclusive')
+        return experience
+
+    def validate_cost(self, cost):
+        if cost < 0:
+            raise serializers.ValidationError('cost can not be negative')
+        return cost
+
+    def validate_filled(self, data):
+        required_fields = ['user_id', 'goal_id', 'experience', 'cost', 'bio']
+        for field in required_fields:
+            if not data.get(field):
+                raise serializers.ValidationError(f'{field} is required')
 
