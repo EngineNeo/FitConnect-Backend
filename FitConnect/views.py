@@ -362,11 +362,11 @@ def create_workout_plan(request):
 
 # Visitor View for Exercises
 class ExerciseList(generics.ListAPIView):
-    queryset = ExerciseBank.objects.all()
+    queryset = ExerciseBank.objects.filter(is_active=1)
     serializer_class = ExerciseListSerializer
 
 class ExerciseListId(generics.RetrieveAPIView):
-    queryset = ExerciseBank.objects.all()
+    queryset = ExerciseBank.objects.filter(is_active=1)
     serializer_class = ExerciseListSerializer
 
 class MuscleGroupList(generics.ListAPIView):
@@ -386,7 +386,7 @@ class SearchExercises(APIView):
         muscle_group_id = request.query_params.get('muscle_group_id')
         equipment_id = request.query_params.get('equipment_id')
 
-        queryset = ExerciseBank.objects.all()
+        queryset = ExerciseBank.objects.filter(is_active=1)
 
         if exercise_id:
             queryset = queryset.filter(exercise_id=exercise_id)
