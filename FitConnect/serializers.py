@@ -175,7 +175,7 @@ class DomCoachSerializer(serializers.ModelSerializer):
         model = Coach
         fields = '__all__'
 
-class ExerciseSerializer(serializers.ModelSerializer):
+class DomExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExerciseBank
         fields = '__all__'
