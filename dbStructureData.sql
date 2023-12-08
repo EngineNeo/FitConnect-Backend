@@ -39,6 +39,7 @@ CREATE TABLE exercise_bank (
   description TEXT,
   muscle_group_id INTEGER,
   equipment_id INTEGER,
+  is_active BOOL DEFAULT TRUE NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (exercise_id),
@@ -84,17 +85,17 @@ ALTER TABLE user ADD FOREIGN KEY (hired_coach_id) REFERENCES coach (coach_id);
 
 
 -- Admin
-/*
+
 CREATE TABLE admin (
   admin_id INTEGER NOT NULL AUTO_INCREMENT,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (admin_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-*/
+
 -- Credentials Tables
 -- Admin Credentials
-/*
+
 CREATE TABLE admin_credentials (
   admin_id INTEGER NOT NULL AUTO_INCREMENT,
   hashed_password VARCHAR(120) NOT NULL,
@@ -103,7 +104,7 @@ CREATE TABLE admin_credentials (
   PRIMARY KEY (admin_id),
   FOREIGN KEY (admin_id) REFERENCES admin (admin_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-*/
+
 -- User Credentials
 CREATE TABLE user_credentials (
   user_id INTEGER NOT NULL AUTO_INCREMENT,
@@ -116,19 +117,21 @@ CREATE TABLE user_credentials (
 
 -- Admin Feature Tables
 -- Become Coach Requests
-/*
-CREATE TABLE coach_status (
-  request_id INTEGER NOT NULL AUTO_INCREMENT,
-  user_id INTEGER NOT NULL,
-  is_approved BOOL DEFAULT FALSE,
-  approved_by INTEGER NOT NULL,
+CREATE TABLE become_coach_request (
+  user_id INTEGER NOT NULL,      -- id of user requesting to become coach
+  goal_id INTEGER NOT NULL,      -- coach's goal
+  experience INTEGER NOT NULL,   -- coach's experience
+  cost DECIMAL(10,2) NOT NULL,   -- coach's cost
+  bio TEXT NOT NULL,             -- coach's bio
+  is_approved BOOL DEFAULT NULL, -- boolean to see status of request (null = admin must still decide)
+  decided_by INTEGER, -- ID of admin that made approved/declined decision
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (request_id),
-  FOREIGN KEY (user_id) REFERENCES user (user_id)
-  FOREIGN KEY approved_by REFERENCES admin (admin_id)
+  PRIMARY KEY (user_id),
+  FOREIGN KEY (user_id) REFERENCES user (user_id),
+  FOREIGN KEY (decided_by) REFERENCES admin (admin_id),
+  FOREIGN KEY (goal_id) REFERENCES goal_bank (goal_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-*/
 -- User & Coach Feature Tables
 -- Logging Tables
 -- Calorie Log

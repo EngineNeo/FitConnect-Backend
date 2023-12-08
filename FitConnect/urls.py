@@ -14,4 +14,17 @@ urlpatterns = [
     path('fitConnect/initial_survey', InitialSurveyView.as_view(), name='initial-survey'),
     path('fitConnect/create_workout_plan', create_workout_plan, name='create_workout_plan'),
     path('fitConnect/daily_survey/<int:user_id>/', DailySurveyView.as_view(), name='daily_survey')
+
+    path('fitConnect/exercises', ExerciseList.as_view()),
+    path('fitConnect/exercises/<int:pk>', ExerciseListId.as_view()),
+    path('fitConnect/muscle_groups', MuscleGroupList.as_view()),
+    path('fitConnect/equipment', EquipmentList.as_view()),
+    path('fitConnect/exercises/search/', SearchExercises.as_view()),
+
+    path('fitConnect/become_coach', BecomeCoachRequestView.as_view(), name='become-coach-request'),
+
+    path('fitConnect/manage_become_coach_request', ManageBecomeCoachRequestView.as_view()),
+    path('fitConnect/edit_exercise_bank', EditExerciseBankView.as_view()),
+
+    path('fitConnect/logout/', LogoutView.as_view(), name='logout'),
 ]

@@ -12,6 +12,42 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from rest_framework.authtoken.models import Token
 
+class Admin(models.Model):
+    admin_id = models.AutoField(primary_key=True)
+    created = models.DateTimeField(default=timezone.now)
+    last_update = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = 'admin'
+
+
+class AdminCredentials(models.Model):
+    admin = models.OneToOneField(Admin, models.DO_NOTHING, primary_key=True)
+    hashed_password = models.CharField(max_length=120)
+    created = models.DateTimeField(default=timezone.now)
+    last_update = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = 'admin_credentials'
+
+
+class BecomeCoachRequest(models.Model):
+    user = models.OneToOneField('User', models.DO_NOTHING, primary_key=True)
+    goal = models.ForeignKey('GoalBank', models.DO_NOTHING)
+    experience = models.IntegerField()
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    bio = models.TextField()
+    is_approved = models.IntegerField(blank=True, null=True)
+    decided_by = models.ForeignKey(Admin, models.DO_NOTHING, db_column='decided_by', blank=True, null=True)
+    created = models.DateTimeField(default=timezone.now)
+    last_update = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = 'become_coach_request'
+
 
 class CalorieLog(models.Model):
     calorie_id = models.AutoField(primary_key=True)
@@ -79,6 +115,7 @@ class ExerciseBank(models.Model):
     description = models.TextField(blank=True, null=True)
     muscle_group = models.ForeignKey('MuscleGroupBank', models.DO_NOTHING, blank=True, null=True)
     equipment = models.ForeignKey(EquipmentBank, models.DO_NOTHING, blank=True, null=True)
+    is_active = models.IntegerField(default=True, null=False)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 

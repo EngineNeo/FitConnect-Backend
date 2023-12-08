@@ -3,8 +3,8 @@ INSERT INTO goal_bank (goal_name) VALUES
 ('Lose Weight'),
 ('Gain Muscle'),
 ('Flexibility'),
-('Goal 4'),
-('Goal 5');
+('Increase Stamina'),
+('Reduce Stress');
 
 INSERT INTO muscle_group_bank (name) VALUES
 ('Biceps'),
