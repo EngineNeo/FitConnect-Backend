@@ -115,6 +115,7 @@ class ExerciseBank(models.Model):
     description = models.TextField(blank=True, null=True)
     muscle_group = models.ForeignKey('MuscleGroupBank', models.DO_NOTHING, blank=True, null=True)
     equipment = models.ForeignKey(EquipmentBank, models.DO_NOTHING, blank=True, null=True)
+    is_active = models.IntegerField(default=True, null=False)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
