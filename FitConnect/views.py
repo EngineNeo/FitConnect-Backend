@@ -6,10 +6,11 @@ from rest_framework import status, generics
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, \
-    CoachAcceptSerializer, BecomeCoachRequestSerializer, ViewBecomeCoachRequestSerializer, DomCoachSerializer, DomExerciseSerializer
-from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan, BecomeCoachRequest, \
-    ExerciseBank
+
+
+from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, CoachAcceptSerializer, BecomeCoachRequestSerializer, ExerciseSerializer, ExerciseListSerializer, MuscleGroupBankSerializer, EquipmentBankSerializer, ViewBecomeCoachRequestSerializer, DomCoachSerializer, DomExerciseSerializer
+from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan, ExerciseBank, MuscleGroupBank, EquipmentBank, BecomeCoachRequest
+
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
 from .services.initial_survey_eligibility import check_initial_survey_eligibility
@@ -72,8 +73,8 @@ class LoginView(APIView):
         except VerifyMismatchError as e:
             return False
 
-    def get(self, request):
-        email = request.query_params.get("email")
+    def post(self, request):
+        email = request.data.get("email")
         try:
             django.core.validators.validate_email(email)  # Check that email is valid before hitting db
             user = User.objects.get(email=email)  # Will throw exception if user does not exist
@@ -81,7 +82,7 @@ class LoginView(APIView):
             return Response({'Error': 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
 
         user_id = getattr(user, 'user_id')
-        password = request.query_params.get("password")
+        password = request.data.get("password")
 
         if self.check_password(user_id, password):  # Verify that the password was correct
             user_serializer = UserSerializer(user)
@@ -98,6 +99,13 @@ class LoginView(APIView):
         else:
             return Response({'Error': 'Invalid Email or Password'}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class LogoutView(APIView):
+    def post(self, request):
+        user = request.data.get('user_id')
+        token = get_object_or_404(AuthToken, user__user_id=user)
+        token.delete()
+        return Response(status=status.HTTP_200_OK)
 
 class CoachList(APIView):
     def validate_search_params(self, params):
@@ -350,3 +358,47 @@ def create_workout_plan(request):
         return JsonResponse({'status': 'success'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+# Visitor View for Exercises
+class ExerciseList(generics.ListAPIView):
+    queryset = ExerciseBank.objects.all()
+    serializer_class = ExerciseListSerializer
+
+class ExerciseListId(generics.RetrieveAPIView):
+    queryset = ExerciseBank.objects.all()
+    serializer_class = ExerciseListSerializer
+
+class MuscleGroupList(generics.ListAPIView):
+    queryset = MuscleGroupBank.objects.all()
+    serializer_class = MuscleGroupBankSerializer
+
+
+class EquipmentList(generics.ListAPIView):
+    queryset = EquipmentBank.objects.all()
+    serializer_class = EquipmentBankSerializer
+
+
+class SearchExercises(APIView):
+    def get(self, request, *args, **kwargs):
+        # Get the request parameters
+        exercise_id = request.query_params.get('exercise_id')
+        muscle_group_id = request.query_params.get('muscle_group_id')
+        equipment_id = request.query_params.get('equipment_id')
+
+        queryset = ExerciseBank.objects.all()
+
+        if exercise_id:
+            queryset = queryset.filter(exercise_id=exercise_id)
+
+        if muscle_group_id:
+            queryset = queryset.filter(muscle_group__muscle_group_id=muscle_group_id)
+
+        if equipment_id:
+            queryset = queryset.filter(equipment__equipment_id=equipment_id)
+
+
+        serializer = ExerciseSerializer(queryset, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
