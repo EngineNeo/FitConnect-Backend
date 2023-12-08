@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest
+from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, ExerciseBank
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -173,4 +173,9 @@ class ViewBecomeCoachRequestSerializer(serializers.ModelSerializer):
 class DomCoachSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coach
+        fields = '__all__'
+
+class ExerciseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExerciseBank
         fields = '__all__'

@@ -7,8 +7,9 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import UserSerializer, UserCredentialsSerializer, CoachSerializer, CoachRequestSerializer, \
-    CoachAcceptSerializer, BecomeCoachRequestSerializer, ViewBecomeCoachRequestSerializer, DomCoachSerializer
-from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan, BecomeCoachRequest
+    CoachAcceptSerializer, BecomeCoachRequestSerializer, ViewBecomeCoachRequestSerializer, DomCoachSerializer, ExerciseSerializer
+from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan, BecomeCoachRequest, \
+    ExerciseBank
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
 from .services.initial_survey_eligibility import check_initial_survey_eligibility
@@ -287,6 +288,28 @@ class ManageBecomeCoachRequestView(APIView):
         except BecomeCoachRequest.DoesNotExist:
             return None
 
+
+class EditExerciseBankView(APIView):
+    # Example add exercise
+    # { "name": "Sick Exercise","description": "Hey there!","muscle_group": 1, "equipment": 1 }
+    def post(self, request, *args, **kwargs):
+        serializer = ExerciseSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Example deactivate exercise
+    # {"exercise_id": 1}
+    def put(self, request):
+        exercise_id = request.data.get('exercise_id')
+        try:
+            exercise = ExerciseBank.objects.get(exercise_id=exercise_id)
+        except ExerciseBank.DoesNotExist:
+            return Response({"detail": "Exercise not found."}, status=status.HTTP_404_NOT_FOUND)
+        exercise.is_active = False
+        exercise.save()
+        return Response({"detail": "Exercise disabled successfully."}, status=status.HTTP_200_OK)
 
 @csrf_exempt
 def create_workout_plan(request):
