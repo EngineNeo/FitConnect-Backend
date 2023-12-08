@@ -409,8 +409,6 @@ class SearchExercises(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
-
 class DailySurveyView(APIView):
     # Sample JSON format for GET and POST requests
     # These are attached to a user_id in the url, for example the following JSON could be posted to the endpoint:
@@ -434,9 +432,13 @@ class DailySurveyView(APIView):
             return Response({'error:': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            calorie_log = CalorieLog.objects.filter(user_id=user_id)
-            water_log = WaterLog.objects.filter(user_id=user_id)
-            mental_health_log = MentalHealthLog.objects.filter(user_id=user_id)
+            # Calculate the date fives days before the current date
+            five_days_ago = timezone.now() - timezone.timedelta(days=5)
+
+            # Filter based on user_id and five_days_ago
+            calorie_log = CalorieLog.objects.filter(user_id=user_id, recorded_date__gte=five_days_ago)
+            water_log = WaterLog.objects.filter(user_id=user_id, recorded_date__gte=five_days_ago)
+            mental_health_log = MentalHealthLog.objects.filter(user_id=user_id, recorded_date__gte=five_days_ago)
 
             # Assuming that each User has entries for all three logs with the same recorded_date
             data = []
