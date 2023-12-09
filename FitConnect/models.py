@@ -181,7 +181,7 @@ class MentalHealthLog(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.mental_health_id
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
@@ -265,8 +265,10 @@ class User(models.Model):
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
-   # def __str__(self):
-    #    return self.first_name + ' ' + self.last_name
+    # Changed the return to a string, this allows a properly functioning generic endpoint
+    def __str__(self):
+        # return self.name
+        return str(self.first_name + self.last_name)
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
@@ -304,7 +306,7 @@ class WaterLog(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.water_id
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
@@ -347,7 +349,7 @@ class WorkoutPlan(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.plan_name
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
