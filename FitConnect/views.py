@@ -423,48 +423,62 @@ class DailySurveyView(APIView):
     # A GET request will return a list of JSON in the above format
 
     def get(self, request, user_id):
-        # Check to see if the requested user exists in the database
         try:
             user = User.objects.get(user_id=user_id)
         except User.DoesNotExist as e:
-            return Response({'error:': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Calculate the date fives days before the current date
-            five_days_ago = timezone.now() - timezone.timedelta(days=5)
+            # Fetch the last 5 logs for each type
+            calorie_logs = CalorieLog.objects.filter(
+                user_id=user_id).order_by('-recorded_date')[:5]
+            water_logs = WaterLog.objects.filter(
+                user_id=user_id).order_by('-recorded_date')[:5]
+            mental_health_logs = MentalHealthLog.objects.filter(
+                user_id=user_id).order_by('-recorded_date')[:5]
+            physical_health_logs = PhysicalHealthLog.objects.filter(
+                user_id=user_id).order_by('-recorded_date')[:5]
 
-            # Filter based on user_id and five_days_ago
-            calorie_log = CalorieLog.objects.filter(user_id=user_id, recorded_date__gte=five_days_ago)
-            water_log = WaterLog.objects.filter(user_id=user_id, recorded_date__gte=five_days_ago)
-            mental_health_log = MentalHealthLog.objects.filter(user_id=user_id, recorded_date__gte=five_days_ago)
+            data = {}
 
-            # Assuming that each User has entries for all three logs with the same recorded_date
-            data = []
-            for calorie_entry in calorie_log:
-                water_entry = water_log.filter(recorded_date=calorie_entry.recorded_date).first()
-                mental_health_entry = mental_health_log.filter(recorded_date=calorie_entry.recorded_date).first()
+            # Process calorie logs
+            for log in calorie_logs:
+                date = log.recorded_date
+                if date not in data:
+                    data[date] = {'recorded_date': date, 'calorie_amount': None,
+                                'water_amount': None, 'mood': None, 'weight': None}
+                data[date]['calorie_amount'] = log.amount
 
-                if mental_health_entry:
-                    mood = mental_health_entry.mood
-                else:
-                    mood = None
+            # Process water logs
+            for log in water_logs:
+                date = log.recorded_date
+                if date not in data:
+                    data[date] = {'recorded_date': date, 'calorie_amount': None,
+                                'water_amount': None, 'mood': None, 'weight': None}
+                data[date]['water_amount'] = log.amount
 
-                entry_data = {
-                    'recorded_date': calorie_entry.recorded_date,
-                    'calorie_amount': calorie_entry.amount,
-                    'water_amount': water_entry.amount,
-                    'mood': mood
-                }
+            # Process mental health logs
+            for log in mental_health_logs:
+                date = log.recorded_date
+                if date not in data:
+                    data[date] = {'recorded_date': date, 'calorie_amount': None,
+                                'water_amount': None, 'mood': None, 'weight': None}
+                data[date]['mood'] = log.mood
 
-                data.append(entry_data)
-            
-            serializer = DailySurveySerializer(data, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        
+            # Process physical health logs
+            for log in physical_health_logs:
+                date = log.recorded_date
+                if date not in data:
+                    data[date] = {'recorded_date': date, 'calorie_amount': None,
+                                'water_amount': None, 'mood': None, 'weight': None}
+                data[date]['weight'] = log.weight
+
+            # Return data for the last 5 recorded entries of each type
+            return Response(list(data.values()), status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-
+   
     def post(self, request, user_id):
         # Check to see if the requested user exists in the database
         try:
