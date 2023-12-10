@@ -4,7 +4,7 @@ from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, ExerciseBank, EquipmentBank, MuscleGroupBank, MentalHealthLog, CalorieLog, WaterLog,\
+from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, ExerciseBank, EquipmentBank, MuscleGroupBank, MentalHealthLog, CalorieLog, WaterLog, WorkoutLog,\
         WorkoutPlan, ExerciseInWorkoutPlan
 
 class UserSerializer(serializers.ModelSerializer):
@@ -303,3 +303,8 @@ class DailySurveySerializer(serializers.Serializer):
     water_amount = serializers.IntegerField()
     mood = serializers.CharField()
     weight = serializers.DecimalField(max_digits=5, decimal_places=2)
+
+class WorkoutLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkoutLog
+        fields = '__all__'
