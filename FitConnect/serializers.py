@@ -178,22 +178,55 @@ class ExerciseInWorkoutPlanSerializer(serializers.ModelSerializer):
             return ExerciseSerializer(exercise).data
 
     exercise = RelatedExerciseField(queryset=ExerciseBank.objects.all())
+    plan_id = serializers.PrimaryKeyRelatedField(queryset=WorkoutPlan.objects.all())
 
     class Meta:
         model = ExerciseInWorkoutPlan
         fields = ['exercise_in_plan_id', 'plan_id', 'exercise', 'sets', 'reps', 'weight', 'duration_minutes']
 
+    '''
     def validate_plan_id(self, value):
+        print('plan = ', value)
         if not WorkoutPlan.objects.filter(pk=value).exists():
             raise ValidationError('Plan does not exist')
-        else:
-            return value
+        return value
+    '''
+
+    def validate_sets(self, value):
+        #print('sets = ', value)
+        if value <= 0:
+            raise ValidationError('Number of sets must be at least 1')
+        return value
+
+    def validate_reps(self, value):
+        #print('reps = ', value)
+        if value <= 0:
+            raise ValidationError('Number of reps must be at least 1')
+        return value
+
+    def validate_weight(self, value):
+        #print('weight = ', value)
+        if value <= 0:
+            raise ValidationError('Weight cannot be less than 1')
+        return value
+
+    def validate_duration_minutes(self, value):
+        #print('duration = ', value)
+        if value <= 0:
+            raise ValidationError('Duration cannot be less than 1')
+        return value
 
     def create(self, validated_data):
-        plan_id = validated_data.pop('plan_id')
-        plan = WorkoutPlan.objects.get(pk=plan_id)
+        plan = validated_data.pop('plan_id')
         return ExerciseInWorkoutPlan.objects.create(**validated_data, plan=plan)
 
+    def update(self, instance, validated_data):
+        instance.sets = validated_data.get('sets', instance.sets)
+        instance.reps = validated_data.get('reps', instance.reps)
+        instance.weight = validated_data.get('weight', instance.weight)
+        instance.duration_minutes = validated_data.get('duration_minutes', instance.duration_minutes)
+        instance.save()
+        return instance 
 
 class WorkoutPlanSerializer(serializers.ModelSerializer):
     exercises = ExerciseInWorkoutPlanSerializer(many=True, read_only=True)

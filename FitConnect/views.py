@@ -280,6 +280,9 @@ class WorkoutPlanList(APIView):
         serializer = WorkoutPlanSerializer(plans, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def post(self, request):
+        return create_workout_plan(request)
+
 class WorkoutPlanDetail(APIView):
     def get(self, request, pk):
         plan = get_object_or_404(WorkoutPlan, pk=pk)
@@ -289,20 +292,18 @@ class WorkoutPlanDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
-        plan = self.get_object(pk)
-        if plan is None:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        exercises = request.data.pop("exercises", None)
+        plan = get_object_or_404(WorkoutPlan, pk=pk)
         serializer = WorkoutPlanSerializer(plan, data=request.data, partial=True)
-        print(request.data)
         if serializer.is_valid():
-            try:
-                serializer.save(exercises=exercises)
-            except ValidationError as error:
-                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        plan = get_object_or_404(WorkoutPlan, pk=pk)
+        plan.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ExerciseInWorkoutPlanView(APIView):
     def get(self, request, pk=None):
@@ -314,7 +315,19 @@ class ExerciseInWorkoutPlanView(APIView):
             serializer = ExerciseInWorkoutPlanSerializer(exercise_in_plan)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def put(self, request, pk=None):
+        if pk is None:
+            pk = request.data.pop('exercise_in_plan_id')
+        exercise_in_plan = get_object_or_404(ExerciseInWorkoutPlan, pk=pk)
+        serializer = ExerciseInWorkoutPlanSerializer(exercise_in_plan, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def post(self, request):
+        print('data: ', request.data)
         serializer = ExerciseInWorkoutPlanSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
