@@ -233,3 +233,4 @@ class DailySurveySerializer(serializers.Serializer):
     calorie_amount = serializers.IntegerField()
     water_amount = serializers.IntegerField()
     mood = serializers.CharField()
+    weight = serializers.DecimalField(max_digits=5, decimal_places=2)

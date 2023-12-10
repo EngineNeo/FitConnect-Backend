@@ -494,11 +494,13 @@ class DailySurveyView(APIView):
                 calorie_amount = serializer.validated_data['calorie_amount']
                 water_amount = serializer.validated_data['water_amount']
                 mood = serializer.validated_data['mood']
+                weight = serializer.validated_data['weight']
 
                 # Save data to respective models
                 CalorieLog.objects.create(user_id=user_id, amount=calorie_amount, recorded_date=recorded_date)
                 WaterLog.objects.create(user_id=user_id, amount=water_amount, recorded_date=recorded_date)
                 MentalHealthLog.objects.create(user_id=user_id, mood=mood, recorded_date=recorded_date)
+                PhysicalHealthLog.objects.create(user_id=user_id, weight=weight, recorded_date=recorded_date)
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
