@@ -38,6 +38,7 @@ class BecomeCoachRequest(models.Model):
     goal = models.ForeignKey('GoalBank', models.DO_NOTHING)
     experience = models.IntegerField()
     cost = models.DecimalField(max_digits=10, decimal_places=2)
+    bio = models.TextField()
     is_approved = models.IntegerField(blank=True, null=True)
     decided_by = models.ForeignKey(Admin, models.DO_NOTHING, db_column='decided_by', blank=True, null=True)
     created = models.DateTimeField(default=timezone.now)
@@ -114,7 +115,7 @@ class ExerciseBank(models.Model):
     description = models.TextField(blank=True, null=True)
     muscle_group = models.ForeignKey('MuscleGroupBank', models.DO_NOTHING, blank=True, null=True)
     equipment = models.ForeignKey(EquipmentBank, models.DO_NOTHING, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.IntegerField(default=True, null=False)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
@@ -180,7 +181,7 @@ class MentalHealthLog(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.mental_health_id
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
@@ -264,8 +265,10 @@ class User(models.Model):
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
-   # def __str__(self):
-    #    return self.first_name + ' ' + self.last_name
+    # Changed the return to a string, this allows a properly functioning generic endpoint
+    def __str__(self):
+        # return self.name
+        return str(self.first_name + self.last_name)
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
@@ -303,7 +306,7 @@ class WaterLog(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.water_id
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()

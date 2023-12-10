@@ -39,7 +39,7 @@ CREATE TABLE exercise_bank (
   description TEXT,
   muscle_group_id INTEGER,
   equipment_id INTEGER,
-  is_active BOOL NOT NULL DEFAULT 1,
+  is_active BOOL DEFAULT TRUE NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (exercise_id),
@@ -122,6 +122,7 @@ CREATE TABLE become_coach_request (
   goal_id INTEGER NOT NULL,      -- coach's goal
   experience INTEGER NOT NULL,   -- coach's experience
   cost DECIMAL(10,2) NOT NULL,   -- coach's cost
+  bio TEXT NOT NULL,             -- coach's bio
   is_approved BOOL DEFAULT NULL, -- boolean to see status of request (null = admin must still decide)
   decided_by INTEGER, -- ID of admin that made approved/declined decision
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

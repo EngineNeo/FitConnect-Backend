@@ -3,8 +3,9 @@ from rest_framework import serializers
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, WorkoutPlan, ExerciseInWorkoutPlan, ExerciseBank
 
+from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, ExerciseBank, EquipmentBank, MuscleGroupBank, MentalHealthLog, CalorieLog, WaterLog,\
+        WorkoutPlan, ExerciseInWorkoutPlan
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -143,20 +144,53 @@ class PhysicalHealthLogSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+class MuscleGroupBankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MuscleGroupBank
+        fields = '__all__'
+
+
+class EquipmentBankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EquipmentBank
+        fields = '__all__'
+
+
+class ExerciseListSerializer(serializers.ModelSerializer):
+    muscle_group_name = serializers.CharField(source='muscle_group.name', read_only=True)
+    equipment_name = serializers.CharField(source='equipment.name', read_only=True)
+
+    class Meta:
+        model = ExerciseBank
+        fields = ['name', 'description', 'muscle_group_name', 'equipment_name']
+
+class ExerciseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExerciseBank
+        fields = ['name']
+
+
 class BecomeCoachRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = BecomeCoachRequest
         fields = '__all__'
     # Django auto checks if user exists, goal exists, and user did not already submit a 'become coach' request
     def validate_experience(self, experience):
-        if experience < 0:
-            raise serializers.ValidationError('experience can not be negative')
+        if experience < 1 or experience > 3:
+            raise serializers.ValidationError('experience must be 1-3 inclusive')
         return experience
 
     def validate_cost(self, cost):
         if cost < 0:
             raise serializers.ValidationError('cost can not be negative')
         return cost
+
+    def validate_filled(self, data):
+        required_fields = ['user_id', 'goal_id', 'experience', 'cost', 'bio']
+        for field in required_fields:
+            if not data.get(field):
+                raise serializers.ValidationError(f'{field} is required')
 
 class ExerciseSerializer(serializers.ModelSerializer):
     muscle_group_name = serializers.CharField(source='muscle_group.name', read_only=True)
@@ -183,14 +217,6 @@ class ExerciseInWorkoutPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExerciseInWorkoutPlan
         fields = ['exercise_in_plan_id', 'plan_id', 'exercise', 'sets', 'reps', 'weight', 'duration_minutes']
-
-    '''
-    def validate_plan_id(self, value):
-        print('plan = ', value)
-        if not WorkoutPlan.objects.filter(pk=value).exists():
-            raise ValidationError('Plan does not exist')
-        return value
-    '''
 
     def validate_sets(self, value):
         #print('sets = ', value)
@@ -235,26 +261,44 @@ class WorkoutPlanSerializer(serializers.ModelSerializer):
         model = WorkoutPlan
         fields = ['plan_id', 'user_id', 'plan_name', 'creation_date', 'exercises']
 
-    '''
-    def update(self, instance, validated_data):
-        print("data:", validated_data)
-        exercises = validated_data.pop("exercises", None)
-        print("exercises:", exercises)
+class ViewBecomeCoachRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BecomeCoachRequest
+        fields = ['user_id', 'goal_id', 'experience', 'cost', 'bio']
 
-        for exercise in exercises:
-            exercise['exercise'] = exercise.pop('exercise_id')
 
-        updated_exercises = [exercise for exercise in exercises if 'exercise_in_plan_id' in exercise]
-        for exercise in updated_exercises:
-            exercises.remove(exercise)
+class DomCoachSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coach
+        fields = '__all__'
 
-        exercise_serializer = ExerciseInWorkoutPlanSerializer(data=exercises, many=True)
-        if exercise_serializer.is_valid():
-            exercise_serializer.save(plan=instance)
-        else:
-            raise ValidationError(exercise_serializer.errors)
+class DomExerciseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExerciseBank
+        fields = '__all__'
 
-        instance.plan_name = validated_data.get("plan_name", instance.plan_name)
-        instance.save()
-        return instance
-    '''
+
+
+class MentalHealthLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MentalHealthLog
+        fields = '__all__'
+
+
+class CalorieLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CalorieLog
+        fields = ['calorie_id', 'user', 'amount', 'recorded_date', 'created', 'last_update']
+
+
+class WaterLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WaterLog
+        fields = ['water_id', 'user', 'amount', 'recorded_date', 'created', 'last_update']
+
+
+class DailySurveySerializer(serializers.Serializer):
+    recorded_date = serializers.DateField()
+    calorie_amount = serializers.IntegerField()
+    water_amount = serializers.IntegerField()
+    mood = serializers.CharField()
