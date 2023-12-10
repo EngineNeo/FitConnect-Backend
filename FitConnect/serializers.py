@@ -4,7 +4,8 @@ from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, ExerciseBank, EquipmentBank, MuscleGroupBank, MentalHealthLog, CalorieLog, WaterLog
+from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, ExerciseBank, EquipmentBank, MuscleGroupBank, MentalHealthLog, CalorieLog, WaterLog,\
+        WorkoutPlan, ExerciseInWorkoutPlan
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -191,6 +192,74 @@ class BecomeCoachRequestSerializer(serializers.ModelSerializer):
             if not data.get(field):
                 raise serializers.ValidationError(f'{field} is required')
 
+class ExerciseSerializer(serializers.ModelSerializer):
+    muscle_group_name = serializers.CharField(source='muscle_group.name', read_only=True)
+    equipment_name = serializers.CharField(source='equipment.name', read_only=True)
+
+    class Meta:
+        model = ExerciseBank
+        fields = ['exercise_id', 'name', 'description', 'muscle_group_name', 'equipment_name']
+
+
+class ExerciseInWorkoutPlanSerializer(serializers.ModelSerializer):
+    class RelatedExerciseField(serializers.PrimaryKeyRelatedField):
+        """
+        Allows ExerciseInWorkoutPlanSerializer to take an exercise_id for the exercise instead of an instance. 
+        """
+        def to_representation(self, value):
+            value = super().to_representation(value)
+            exercise = self.queryset.get(pk=value)
+            return ExerciseSerializer(exercise).data
+
+    exercise = RelatedExerciseField(queryset=ExerciseBank.objects.all())
+    plan_id = serializers.PrimaryKeyRelatedField(queryset=WorkoutPlan.objects.all())
+
+    class Meta:
+        model = ExerciseInWorkoutPlan
+        fields = ['exercise_in_plan_id', 'plan_id', 'exercise', 'sets', 'reps', 'weight', 'duration_minutes']
+
+    def validate_sets(self, value):
+        #print('sets = ', value)
+        if value <= 0:
+            raise ValidationError('Number of sets must be at least 1')
+        return value
+
+    def validate_reps(self, value):
+        #print('reps = ', value)
+        if value <= 0:
+            raise ValidationError('Number of reps must be at least 1')
+        return value
+
+    def validate_weight(self, value):
+        #print('weight = ', value)
+        if value <= 0:
+            raise ValidationError('Weight cannot be less than 1')
+        return value
+
+    def validate_duration_minutes(self, value):
+        #print('duration = ', value)
+        if value <= 0:
+            raise ValidationError('Duration cannot be less than 1')
+        return value
+
+    def create(self, validated_data):
+        plan = validated_data.pop('plan_id')
+        return ExerciseInWorkoutPlan.objects.create(**validated_data, plan=plan)
+
+    def update(self, instance, validated_data):
+        instance.sets = validated_data.get('sets', instance.sets)
+        instance.reps = validated_data.get('reps', instance.reps)
+        instance.weight = validated_data.get('weight', instance.weight)
+        instance.duration_minutes = validated_data.get('duration_minutes', instance.duration_minutes)
+        instance.save()
+        return instance 
+
+class WorkoutPlanSerializer(serializers.ModelSerializer):
+    exercises = ExerciseInWorkoutPlanSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = WorkoutPlan
+        fields = ['plan_id', 'user_id', 'plan_name', 'creation_date', 'exercises']
 
 class ViewBecomeCoachRequestSerializer(serializers.ModelSerializer):
     class Meta:

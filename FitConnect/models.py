@@ -133,7 +133,7 @@ class ExerciseBank(models.Model):
 
 class ExerciseInWorkoutPlan(models.Model):
     exercise_in_plan_id = models.AutoField(primary_key=True)
-    plan = models.ForeignKey('WorkoutPlan', models.DO_NOTHING)
+    plan = models.ForeignKey('WorkoutPlan', models.DO_NOTHING, related_name="exercises")
     exercise = models.ForeignKey(ExerciseBank, models.DO_NOTHING)
     sets = models.IntegerField(blank=True, null=True)
     reps = models.IntegerField(blank=True, null=True)

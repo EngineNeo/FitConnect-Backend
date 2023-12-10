@@ -22,6 +22,11 @@ urlpatterns = [
     path('fitConnect/exercises/search/', SearchExercises.as_view()),
 
     path('fitConnect/become_coach', BecomeCoachRequestView.as_view(), name='become-coach-request'),
+    path('fitConnect/users/<int:user_id>/plans', WorkoutPlanList.as_view()),
+    path('fitConnect/plans', WorkoutPlanList.as_view()),
+    path('fitConnect/plans/<int:pk>', WorkoutPlanDetail.as_view()),
+    path('fitConnect/exercise_in_plan/', ExerciseInWorkoutPlanView.as_view()),
+    path('fitConnect/exercise_in_plan/<int:pk>', ExerciseInWorkoutPlanView.as_view()),
 
     path('fitConnect/manage_become_coach_request', ManageBecomeCoachRequestView.as_view()),
     path('fitConnect/edit_exercise_bank', EditExerciseBankView.as_view()),
