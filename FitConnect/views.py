@@ -296,6 +296,6 @@ def get_messages(request, sender_id, recipient_id):
         (Q(sender_id=recipient_id) & Q(recipient_id=sender_id))
     ).order_by('sent_date')
 
-    data = [{'sender': msg.sender.email, 'recipient': msg.recipient.email, 'text': msg.message_text} for msg in messages]
+    data = [{'sender': msg.sender.user_id, 'recipient': msg.recipient.user_id, 'text': msg.message_text} for msg in messages]
 
     return JsonResponse({'messages': data})
