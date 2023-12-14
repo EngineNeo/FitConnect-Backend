@@ -33005,7 +33005,7 @@
     "fields": {
         "user": 1,
         "goal": 1,
-        "experience": 24,
+        "experience": 1,
         "cost": "43.00",
         "bio": "Passionate about transforming lives through personalized fitness programs, focusing on both physical and mental well-being.",
         "created": "2023-12-10T16:05:51Z",
@@ -33018,7 +33018,7 @@
     "fields": {
         "user": 2,
         "goal": 2,
-        "experience": 17,
+        "experience": 2,
         "cost": "167.50",
         "bio": "Former athlete turned fitness enthusiast, dedicated to helping clients discover their full potential and achieve their health goals.",
         "created": "2023-12-10T16:05:51Z",
@@ -33031,7 +33031,7 @@
     "fields": {
         "user": 3,
         "goal": 3,
-        "experience": 13,
+        "experience": 3,
         "cost": "247.00",
         "bio": "Holistic approach to fitness, integrating mind-body wellness practices to create a comprehensive and sustainable fitness journey.",
         "created": "2023-12-10T16:05:51Z",
@@ -33044,7 +33044,7 @@
     "fields": {
         "user": 4,
         "goal": 4,
-        "experience": 17,
+        "experience": 2,
         "cost": "73.50",
         "bio": "Specializing in strength and conditioning, with an emphasis on functional fitness to improve overall physical performance.",
         "created": "2023-12-10T16:05:51Z",
@@ -33057,7 +33057,7 @@
     "fields": {
         "user": 5,
         "goal": 5,
-        "experience": 25,
+        "experience": 1,
         "cost": "69.00",
         "bio": "Creative fitness coach who believes in making workouts enjoyable, whether through dance-inspired routines or high-intensity training.",
         "created": "2023-12-10T16:05:51Z",
@@ -33070,7 +33070,7 @@
     "fields": {
         "user": 6,
         "goal": 1,
-        "experience": 24,
+        "experience": 1,
         "cost": "157.50",
         "bio": "Cardiovascular fitness specialist and marathon runner, committed to making cardio workouts effective and accessible for all.",
         "created": "2023-12-10T16:05:51Z",
@@ -33083,7 +33083,7 @@
     "fields": {
         "user": 7,
         "goal": 2,
-        "experience": 6,
+        "experience": 2,
         "cost": "120.00",
         "bio": "Certified nutritionist and fitness coach, creating personalized plans that combine exercise with balanced nutrition for lasting results.",
         "created": "2023-12-10T16:05:51Z",
@@ -33096,7 +33096,7 @@
     "fields": {
         "user": 8,
         "goal": 3,
-        "experience": 7,
+        "experience": 3,
         "cost": "52.50",
         "bio": "Expert in mobility coaching, focusing on flexibility and agility to enhance range of motion and prevent injuries.",
         "created": "2023-12-10T16:05:51Z",
@@ -33109,7 +33109,7 @@
     "fields": {
         "user": 9,
         "goal": 4,
-        "experience": 16,
+        "experience": 1,
         "cost": "220.00",
         "bio": "Passionate about toning and sculpting bodies, with a commitment to helping clients feel strong, confident, and empowered.",
         "created": "2023-12-10T16:05:51Z",
@@ -33122,7 +33122,7 @@
     "fields": {
         "user": 10,
         "goal": 5,
-        "experience": 16,
+        "experience": 3,
         "cost": "25.50",
         "bio": "Strength training advocate dedicated to empowering clients, emphasizing both physical and mental strength in every workout.",
         "created": "2023-12-10T16:05:51Z",
@@ -33135,7 +33135,7 @@
     "fields": {
         "user": 11,
         "goal": 1,
-        "experience": 2,
+        "experience": 3,
         "cost": "56.00",
         "bio": "High-intensity interval training (HIIT) specialist, delivering efficient workouts that torch calories and boost metabolism.",
         "created": "2023-12-10T16:05:51Z",
@@ -33148,7 +33148,7 @@
     "fields": {
         "user": 12,
         "goal": 2,
-        "experience": 13,
+        "experience": 2,
         "cost": "136.50",
         "bio": "Holistic fitness coach and wellness advocate, promoting a healthy lifestyle beyond the gym for overall well-being.",
         "created": "2023-12-10T16:05:51Z",
@@ -33161,7 +33161,7 @@
     "fields": {
         "user": 13,
         "goal": 3,
-        "experience": 16,
+        "experience": 3,
         "cost": "53.00",
         "bio": "Biohacking fitness coach leveraging scientific approaches for optimal performance, combining cutting-edge training with personalized nutrition.",
         "created": "2023-12-10T16:05:51Z",
@@ -33174,7 +33174,7 @@
     "fields": {
         "user": 14,
         "goal": 4,
-        "experience": 4,
+        "experience": 2,
         "cost": "248.50",
         "bio": "Certified breathing coach and fitness enthusiast, teaching the art of mindful breathing to enhance performance and reduce stress.",
         "created": "2023-12-10T16:05:51Z",
@@ -33187,7 +33187,7 @@
     "fields": {
         "user": 15,
         "goal": 5,
-        "experience": 11,
+        "experience": 3,
         "cost": "127.00",
         "bio": "Positive and motivational fitness coach, infusing energy into every session to create uplifting and empowering workout experiences.",
         "created": "2023-12-10T16:05:51Z",
@@ -33200,7 +33200,7 @@
     "fields": {
         "user": 16,
         "goal": 1,
-        "experience": 23,
+        "experience": 3,
         "cost": "132.50",
         "bio": "Energetic and fun fitness coach, believing in the power of joy to drive success and make fitness an enjoyable part of daily life.",
         "created": "2023-12-10T16:05:51Z",
@@ -33213,7 +33213,7 @@
     "fields": {
         "user": 17,
         "goal": 2,
-        "experience": 17,
+        "experience": 1,
         "cost": "49.00",
         "bio": "Specialist in explosive workouts, helping clients unleash their inner dynamo with high-energy training sessions.",
         "created": "2023-12-10T16:05:51Z",
@@ -33226,7 +33226,7 @@
     "fields": {
         "user": 18,
         "goal": 3,
-        "experience": 18,
+        "experience": 3,
         "cost": "156.50",
         "bio": "Focuses on consistent effort and challenging yet rewarding workouts, guiding clients to grind now and shine later.",
         "created": "2023-12-10T16:05:51Z",
@@ -33239,7 +33239,7 @@
     "fields": {
         "user": 19,
         "goal": 4,
-        "experience": 11,
+        "experience": 1,
         "cost": "176.00",
         "bio": "Dedicated weightlifting coach aiming to build strength and confidence in every client through personalized lifting programs.",
         "created": "2023-12-10T16:05:51Z",
@@ -33252,7 +33252,7 @@
     "fields": {
         "user": 20,
         "goal": 5,
-        "experience": 8,
+        "experience": 3,
         "cost": "47.50",
         "bio": "Mindfulness meets fitness with a coach who incorporates meditation and mindful movement for a holistic approach to health.",
         "created": "2023-12-10T16:05:51Z",
@@ -33265,7 +33265,7 @@
     "fields": {
         "user": 21,
         "goal": 1,
-        "experience": 24,
+        "experience": 3,
         "cost": "76.00",
         "bio": "Dance-inspired fitness coach, creating rhythmic workouts that turn exercise into a dynamic and enjoyable dance party.",
         "created": "2023-12-10T16:05:51Z",
@@ -33278,7 +33278,7 @@
     "fields": {
         "user": 22,
         "goal": 2,
-        "experience": 18,
+        "experience": 2,
         "cost": "85.50",
         "bio": "Outdoor fitness enthusiast incorporating nature into workouts for a refreshing twist on traditional exercise routines.",
         "created": "2023-12-10T16:05:51Z",
@@ -33291,7 +33291,7 @@
     "fields": {
         "user": 23,
         "goal": 3,
-        "experience": 18,
+        "experience": 1,
         "cost": "203.00",
         "bio": "Striving for optimal health, tailoring workouts to individual needs to promote overall wellness through sustainable fitness habits.",
         "created": "2023-12-10T16:05:51Z",
@@ -33304,7 +33304,7 @@
     "fields": {
         "user": 24,
         "goal": 4,
-        "experience": 8,
+        "experience": 1,
         "cost": "80.50",
         "bio": "Focuses on lean body transformations through strength training, functional exercises, and mindful nutrition.",
         "created": "2023-12-10T16:05:51Z",
@@ -33317,7 +33317,7 @@
     "fields": {
         "user": 25,
         "goal": 5,
-        "experience": 20,
+        "experience": 1,
         "cost": "127.00",
         "bio": "Motivational coach inspiring clients to overcome obstacles and stay committed to their fitness journey.",
         "created": "2023-12-10T16:05:51Z",
@@ -33343,7 +33343,7 @@
     "fields": {
         "user": 27,
         "goal": 2,
-        "experience": 23,
+        "experience": 3,
         "cost": "127.00",
         "bio": "Goal-oriented coach focused on boosting stamina through dynamic workouts and helping clients conquer fitness challenges.",
         "created": "2023-12-10T16:05:51Z",
@@ -33356,7 +33356,7 @@
     "fields": {
         "user": 28,
         "goal": 3,
-        "experience": 19,
+        "experience": 1,
         "cost": "181.50",
         "bio": "Success-driven coach pushing limits and helping clients achieve fitness goals that once seemed impossible.",
         "created": "2023-12-10T16:05:51Z",
@@ -33369,7 +33369,7 @@
     "fields": {
         "user": 29,
         "goal": 4,
-        "experience": 6,
+        "experience": 3,
         "cost": "75.00",
         "bio": "Integrates nutrition with fitness, promoting nourishment from the inside out and creating a foundation for a healthy lifestyle.",
         "created": "2023-12-10T16:05:51Z",
@@ -33382,7 +33382,7 @@
     "fields": {
         "user": 30,
         "goal": 5,
-        "experience": 20,
+        "experience": 2,
         "cost": "21.50",
         "bio": "Passionate fitness guru with a knack for transforming lives through tailored workout plans. Certified personal trainer and nutrition expert.",
         "created": "2023-12-10T16:05:51Z",
