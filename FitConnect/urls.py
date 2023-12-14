@@ -31,5 +31,6 @@ urlpatterns = [
     path('fitConnect/manage_become_coach_request', ManageBecomeCoachRequestView.as_view()),
     path('fitConnect/edit_exercise_bank', EditExerciseBankView.as_view()),
 
-    path('fitConnect/logout/', LogoutView.as_view(), name='logout')
+    path('fitConnect/logout/', LogoutView.as_view(), name='logout'),
+    path('fitConnect/view_workout_logs/<int:user_id>/', WorkoutLogView.as_view(), name='view-workout-log'),
 ]
