@@ -1,23 +1,21 @@
+from datetime import timedelta
+
 from django.core.exceptions import ValidationError
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
-
-from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan, ExerciseBank, MuscleGroupBank, EquipmentBank, BecomeCoachRequest
-
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
 from .services.initial_survey_eligibility import check_initial_survey_eligibility
 from django.utils import timezone
 from django.http import JsonResponse, Http404
 import django, json
-
 from .serializers import *
-
+from .models import *
 import django
 
 def validate_password(password):
@@ -576,3 +574,29 @@ class DailySurveyView(APIView):
         
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class WorkoutLogView(ListAPIView):
+    serializer_class = WorkoutLogSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        end_date = timezone.now()
+        start_date = end_date - timedelta(days=4)  # Last 5 days
+        return WorkoutLog.objects.filter(user_id=user_id, completed_date__range=(start_date, end_date)).order_by('-completed_date')
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if not queryset:
+            return self.get_workout_logs_for_last_plan(kwargs['user_id'])
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get_workout_logs_for_last_plan(self, user_id):
+        latest_log = WorkoutLog.objects.filter(user_id=user_id).latest('completed_date')
+        latest_log_date = latest_log.completed_date
+        logs_on_latest_log_date = WorkoutLog.objects.filter(
+            user_id=user_id,
+            completed_date=latest_log_date
+        ).order_by('-completed_date')
+        serializer = self.get_serializer(logs_on_latest_log_date, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

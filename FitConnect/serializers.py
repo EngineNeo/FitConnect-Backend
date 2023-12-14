@@ -4,8 +4,7 @@ from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, ExerciseBank, EquipmentBank, MuscleGroupBank, MentalHealthLog, CalorieLog, WaterLog,\
-        WorkoutPlan, ExerciseInWorkoutPlan
+from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -303,3 +302,21 @@ class DailySurveySerializer(serializers.Serializer):
     water_amount = serializers.IntegerField()
     mood = serializers.CharField()
     weight = serializers.DecimalField(max_digits=5, decimal_places=2)
+
+
+class WorkoutLogSerializer(serializers.ModelSerializer):
+    plan = serializers.SerializerMethodField()
+    exercise = serializers.SerializerMethodField()
+    class Meta:
+        model = WorkoutLog
+        fields = ['plan', 'exercise', 'reps', 'weight', 'duration_minutes', 'completed_date']
+
+    def get_plan(self, obj):
+        if obj.exercise_in_plan and obj.exercise_in_plan.plan:
+            return obj.exercise_in_plan.plan.plan_name
+        return None
+
+    def get_exercise(self, obj):
+        if obj.exercise_in_plan:
+            return obj.exercise_in_plan.exercise.name
+        return None
