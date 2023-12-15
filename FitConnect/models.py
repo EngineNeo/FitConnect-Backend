@@ -3,7 +3,6 @@
 #   * Rearrange models' order
 #   * Make sure each model has one field with primary_key=True
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 from django.utils import timezone
@@ -18,7 +17,7 @@ class Admin(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'admin'
 
 
@@ -29,7 +28,7 @@ class AdminCredentials(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'admin_credentials'
 
 
@@ -38,13 +37,14 @@ class BecomeCoachRequest(models.Model):
     goal = models.ForeignKey('GoalBank', models.DO_NOTHING)
     experience = models.IntegerField()
     cost = models.DecimalField(max_digits=10, decimal_places=2)
+    bio = models.TextField()
     is_approved = models.IntegerField(blank=True, null=True)
     decided_by = models.ForeignKey(Admin, models.DO_NOTHING, db_column='decided_by', blank=True, null=True)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'become_coach_request'
 
 
@@ -64,7 +64,7 @@ class CalorieLog(models.Model):
         super(CalorieLog, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'calorie_log'
 
 
@@ -86,7 +86,7 @@ class Coach(models.Model):
         super(Coach, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'coach'
 
 
@@ -104,7 +104,7 @@ class EquipmentBank(models.Model):
         super(EquipmentBank, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'equipment_bank'
 
 
@@ -114,6 +114,7 @@ class ExerciseBank(models.Model):
     description = models.TextField(blank=True, null=True)
     muscle_group = models.ForeignKey('MuscleGroupBank', models.DO_NOTHING, blank=True, null=True)
     equipment = models.ForeignKey(EquipmentBank, models.DO_NOTHING, blank=True, null=True)
+    is_active = models.IntegerField(default=True, null=False)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
@@ -125,13 +126,13 @@ class ExerciseBank(models.Model):
         super(ExerciseBank, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'exercise_bank'
 
 
 class ExerciseInWorkoutPlan(models.Model):
     exercise_in_plan_id = models.AutoField(primary_key=True)
-    plan = models.ForeignKey('WorkoutPlan', models.DO_NOTHING)
+    plan = models.ForeignKey('WorkoutPlan', models.DO_NOTHING, related_name="exercises")
     exercise = models.ForeignKey(ExerciseBank, models.DO_NOTHING)
     sets = models.IntegerField(blank=True, null=True)
     reps = models.IntegerField(blank=True, null=True)
@@ -148,7 +149,7 @@ class ExerciseInWorkoutPlan(models.Model):
         super(ExerciseInWorkoutPlan, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'exercise_in_workout_plan'
 
 
@@ -166,7 +167,7 @@ class GoalBank(models.Model):
         super(GoalBank, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'goal_bank'
 
 
@@ -179,14 +180,14 @@ class MentalHealthLog(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.mental_health_id
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
         super(MentalHealthLog, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'mental_health_log'
 
 
@@ -207,7 +208,7 @@ class MessageLog(models.Model):
         super(MessageLog, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'message_log'
 
 
@@ -225,7 +226,7 @@ class MuscleGroupBank(models.Model):
         super(MuscleGroupBank, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'muscle_group_bank'
 
 
@@ -246,7 +247,7 @@ class PhysicalHealthLog(models.Model):
         super(PhysicalHealthLog, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'physical_health_log'
 
 
@@ -263,15 +264,17 @@ class User(models.Model):
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
-   # def __str__(self):
-    #    return self.first_name + ' ' + self.last_name
+    # Changed the return to a string, this allows a properly functioning generic endpoint
+    def __str__(self):
+        # return self.name
+        return str(self.first_name + self.last_name)
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
         super(User, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'user'
 
 
@@ -289,7 +292,7 @@ class UserCredentials(models.Model):
         super(UserCredentials, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'user_credentials'
 
 
@@ -302,14 +305,14 @@ class WaterLog(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.water_id
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
         super(WaterLog, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'water_log'
 
 
@@ -332,7 +335,7 @@ class WorkoutLog(models.Model):
         super(WorkoutLog, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'workout_log'
 
 
@@ -345,14 +348,14 @@ class WorkoutPlan(models.Model):
     last_update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.name
+        return self.plan_name
 
     def save(self, *args, **kwargs):
         self.last_update = timezone.now()
         super(WorkoutPlan, self).save(*args, **kwargs)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'workout_plan'
 
 #Create a custom subclass of DRF Token to work with our custom User class

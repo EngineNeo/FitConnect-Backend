@@ -13,7 +13,26 @@ urlpatterns = [
     path('fitConnect/fireCoach/<int:pk>', FireCoach.as_view()),
     path('fitConnect/initial_survey', InitialSurveyView.as_view(), name='initial-survey'),
     path('fitConnect/create_workout_plan', create_workout_plan, name='create_workout_plan'),
+    path('fitConnect/daily_survey/<int:user_id>/', DailySurveyView.as_view(), name='daily_survey'),
+
+    path('fitConnect/exercises', ExerciseList.as_view()),
+    path('fitConnect/exercises/<int:pk>', ExerciseListId.as_view()),
+    path('fitConnect/muscle_groups', MuscleGroupList.as_view()),
+    path('fitConnect/equipment', EquipmentList.as_view()),
+    path('fitConnect/exercises/search/', SearchExercises.as_view()),
+
     path('fitConnect/become_coach', BecomeCoachRequestView.as_view(), name='become-coach-request'),
     path('fitConnect/create_message/', create_message, name='create_message'),
     path('fitConnect/get_messages/<int:sender_id>/<int:recipient_id>/', get_messages, name='get_messages'),
+    path('fitConnect/users/<int:user_id>/plans', WorkoutPlanList.as_view()),
+    path('fitConnect/plans', WorkoutPlanList.as_view()),
+    path('fitConnect/plans/<int:pk>', WorkoutPlanDetail.as_view()),
+    path('fitConnect/exercise_in_plan/', ExerciseInWorkoutPlanView.as_view()),
+    path('fitConnect/exercise_in_plan/<int:pk>', ExerciseInWorkoutPlanView.as_view()),
+
+    path('fitConnect/manage_become_coach_request', ManageBecomeCoachRequestView.as_view()),
+    path('fitConnect/edit_exercise_bank', EditExerciseBankView.as_view()),
+
+    path('fitConnect/logout/', LogoutView.as_view(), name='logout'),
+    path('fitConnect/view_workout_logs/<int:user_id>/', WorkoutLogView.as_view(), name='view-workout-log'),
 ]
