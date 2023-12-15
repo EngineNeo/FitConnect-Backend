@@ -285,14 +285,6 @@ class UserDetail(APIView):
             clients.update(has_coach=False, hired_coach=None)
             coach.delete()
 
-        # Delete all related data except messages
-        CalorieLog.objects.filter(user=user).delete()
-        WaterLog.objects.filter(user=user).delete()
-        MentalHealthLog.objects.filter(user=user).delete()
-        PhysicalHealthLog.objects.filter(user=user).delete()
-        WorkoutLog.objects.filter(user=user).delete()
-        WorkoutPlan.objects.filter(user=user).delete()
-
         # Set user as inactive
         user.has_coach=False
         user.hired_coach=None
