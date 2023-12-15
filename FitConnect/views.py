@@ -632,3 +632,12 @@ class WorkoutLogView(ListAPIView):
         ).order_by('-completed_date')
         serializer = self.get_serializer(logs_on_latest_log_date, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class DeclineClient(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = CoachDeclineSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Client request declined successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
