@@ -320,3 +320,33 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
         if obj.exercise_in_plan:
             return obj.exercise_in_plan.exercise.name
         return None
+
+
+class CoachDeclineSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    coach = serializers.IntegerField()
+
+    def save(self):
+        user_instance = User.objects.get(pk=self.validated_data['user'])
+        user_instance.hired_coach = None
+        user_instance.save()
+
+    def validate_user(self, value):
+        try:
+            user_instance = User.objects.get(pk=value)
+        except User.DoesNotExist:
+            print('User does not exist.')
+            raise ValidationError('User does not exist.')
+
+        if user_instance.hired_coach_id != self.initial_data['coach']:
+            print('Invalid client request.')
+            raise ValidationError('Invalid client request.')
+
+        return value
+
+    def validate_coach(self, value):
+        if not Coach.objects.filter(pk=value).exists():
+            print('Coach does not exist.')
+            raise ValidationError('Coach does not exist.')
+
+        return value

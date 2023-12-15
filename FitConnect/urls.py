@@ -35,4 +35,5 @@ urlpatterns = [
 
     path('fitConnect/logout/', LogoutView.as_view(), name='logout'),
     path('fitConnect/view_workout_logs/<int:user_id>/', WorkoutLogView.as_view(), name='view-workout-log'),
+    path('fitConnect/declineClient/', DeclineClient.as_view(), name='decline_client'),
 ]
