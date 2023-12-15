@@ -1,6 +1,6 @@
 from django.test import TestCase, RequestFactory
-from .models import User, CalorieLog, WaterLog, PhysicalHealthLog, MentalHealthLog, GoalBank, MuscleGroupBank, ExerciseBank, EquipmentBank, WorkoutPlan, ExerciseInWorkoutPlan
-from .views import WorkoutPlanList, WorkoutPlanDetail, DailySurveyView, InitialSurveyView, SearchExercises, ExerciseInWorkoutPlanView
+from .models import User, Coach, CalorieLog, WaterLog, PhysicalHealthLog, MentalHealthLog, GoalBank, MuscleGroupBank, ExerciseBank, EquipmentBank, WorkoutPlan, ExerciseInWorkoutPlan
+from .views import CoachList, FireCoach, WorkoutPlanList, WorkoutPlanDetail, DailySurveyView, InitialSurveyView, SearchExercises, ExerciseInWorkoutPlanView, DeclineClient, EditExerciseBankView
 
 
 # RUNNING TESTS AND GENERATING htmlcov SUBDIRECTORY:
@@ -231,4 +231,99 @@ class TestExerciseInWorkoutPlanView(TestCase):
         request = self.factory.delete('/fitConnect/exercise_in_plan/')
         response = ExerciseInWorkoutPlanView.as_view()(request, pk=self.exercise_in_workout_plan.exercise_in_plan_id)
         self.assertEquals(response.status_code, 204)
+
+
+class TestDeclineClientView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        # Create Test User
+        self.user_f_name = 'Test'
+        self.user_l_name = 'User'
+        self.user_email = 'something@mail.com'
+        self.test_user = User.objects.create(first_name=self.user_f_name, last_name=self.user_l_name, email=self.user_email)
+
+        # Create Test Coach
+        self.c_user_f_name = 'Coach'
+        self.c_user_l_name = 'Person'
+        self.test_coach_user = User.objects.create(first_name=self.c_user_f_name, last_name=self.c_user_l_name)
+        self.test_coach = Coach.objects.create(user=self.test_coach_user)
+
+    def test_decline_client_view_post(self):
+        request = self.factory.post('/fitConnect/declineClient/', {"user": self.test_user.user_id, "coach": self.test_coach.coach_id})
+        response = DeclineClient.as_view()(request)
+        self.assertEquals(response.status_code, 400)
+
+
+class TestEditExerciseBankView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        # Create Test Muscle Group
+        self.muscle_name = 'Biceps'
+        self.muscle_group = MuscleGroupBank.objects.create(name=self.muscle_name)
+
+        # Create Test Equipment
+        self.equipment_name = 'Flat Bench'
+        self.equipment = EquipmentBank.objects.create(name=self.equipment_name)
+
+        # Create Test Exercise
+        self.exercise_name = 'Bench Press'
+        self.exrecise_description = 'This is an example of a description'
+        self.exercise = ExerciseBank.objects.create(name=self.exercise_name, description=self.exrecise_description, muscle_group=self.muscle_group, equipment=self.equipment)
+
+    def test_edit_exercise_bank_view_post(self):
+        # Test Valid Post
+        request = self.factory.post('/fitConnect/edit_exercise_bank', {"name": self.exercise.name, "description": self.exercise.description, "muscle_group": self.muscle_group.muscle_group_id, "equipment": self.equipment.equipment_id})
+        response = EditExerciseBankView.as_view()(request)
+        self.assertEquals(response.status_code, 201)
+
+        # Test Invalid Post
+        request = self.factory.post('/fitConnect/edit_exercise_bank', {"name": self.exercise.name, "description": self.exercise.description, "muscle_group": self.muscle_group.muscle_group_id, "equipment": 4})
+        response = EditExerciseBankView.as_view()(request)
+        self.assertEquals(response.status_code, 400)
+
+
+class TestFireCoachView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        # Create Test Coach
+        self.c_user_f_name = 'Coach'
+        self.c_user_l_name = 'Person'
+        self.test_coach_user = User.objects.create(first_name=self.c_user_f_name, last_name=self.c_user_l_name)
+        self.test_coach = Coach.objects.create(user=self.test_coach_user)
+
+        # Create Test User
+        self.user_f_name = 'Test'
+        self.user_l_name = 'User'
+        self.user_email = 'something@mail.com'
+        self.test_user = User.objects.create(first_name=self.user_f_name, last_name=self.user_l_name, email=self.user_email, has_coach=True, hired_coach=self.test_coach)
+
+    def test_fire_coach_view_patch(self):
+        request = self.factory.patch('/fitConnect/fireCoach/')
+        response = FireCoach.as_view()(request, pk=self.test_user.user_id)
+        self.assertEquals(response.status_code, 200)
+    
+
+class TestCoachListView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        # Create a Test Goal
+        self.goal_name = 'Lose Weight'
+        self.goal = GoalBank.objects.create(goal_name=self.goal_name)
+
+        # Create Test Coach
+        self.c_user_f_name = 'Coach'
+        self.c_user_l_name = 'Person'
+        self.test_coach_user = User.objects.create(first_name=self.c_user_f_name, last_name=self.c_user_l_name)
+        self.cost = 50.50
+        self.experience = 5
+        self.test_coach = Coach.objects.create(user=self.test_coach_user, goal=self.goal, experience=self.experience, cost=self.cost)
+
+    def test_coach_list_view_get(self):
+        request = self.factory.get('/fitConnect/coaches', {"goal": self.goal.goal_id, "min_experience": self.experience, "cost": self.cost})
+        response = CoachList.as_view()(request)
+        self.assertEquals(response.status_code, 200)
 
