@@ -22,6 +22,8 @@ urlpatterns = [
     path('fitConnect/exercises/search/', SearchExercises.as_view()),
 
     path('fitConnect/become_coach', BecomeCoachRequestView.as_view(), name='become-coach-request'),
+    path('fitConnect/create_message/', create_message, name='create_message'),
+    path('fitConnect/get_messages/<int:sender_id>/<int:recipient_id>/', get_messages, name='get_messages'),
     path('fitConnect/users/<int:user_id>/plans', WorkoutPlanList.as_view()),
     path('fitConnect/plans', WorkoutPlanList.as_view()),
     path('fitConnect/plans/<int:pk>', WorkoutPlanDetail.as_view()),
