@@ -98,6 +98,9 @@ class LoginView(APIView):
             if Coach.objects.filter(user_id=user_id).exists():
                 response['user_type'] = 'coach'
 
+            if Admin.objects.filter(user_id=user_id).exists():
+                response['user_type'] = 'admin'
+
             response.update(user_serializer.data)
             return Response(response, status=status.HTTP_200_OK)
         else:
