@@ -348,20 +348,21 @@ def create_workout_plan(request):
         )
 
         # find exercise data
-        exercises_data = json.loads(data.get('exercises'))
+        exercises_data = data.get('exercises', None)
 
         # Create ExerciseInWorkoutPlan objects
-        for exercise_data in exercises_data:
-            ExerciseInWorkoutPlan.objects.create(
-                plan=workout_plan,
-                exercise_id=exercise_data.get('exercise'),
-                sets=exercise_data.get('sets'),
-                reps=exercise_data.get('reps'),
-                weight=exercise_data.get('weight'),
-                duration_minutes=exercise_data.get('durationMinutes'),
-                created=timezone.now(),
-                last_update=timezone.now()
-            )
+        if exercises_data is not None:
+            for exercise_data in exercises_data:
+                ExerciseInWorkoutPlan.objects.create(
+                    plan=workout_plan,
+                    exercise_id=exercise_data.get('exercise'),
+                    sets=exercise_data.get('sets'),
+                    reps=exercise_data.get('reps'),
+                    weight=exercise_data.get('weight'),
+                    duration_minutes=exercise_data.get('durationMinutes'),
+                    created=timezone.now(),
+                    last_update=timezone.now()
+                )
 
         return JsonResponse({'status': 'success'})
 
