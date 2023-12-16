@@ -13,23 +13,13 @@ from rest_framework.authtoken.models import Token
 
 class Admin(models.Model):
     admin_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey('User', models.DO_NOTHING)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
     class Meta:
         managed = True
         db_table = 'admin'
-
-
-class AdminCredentials(models.Model):
-    admin = models.OneToOneField(Admin, models.DO_NOTHING, primary_key=True)
-    hashed_password = models.CharField(max_length=120)
-    created = models.DateTimeField(default=timezone.now)
-    last_update = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        managed = True
-        db_table = 'admin_credentials'
 
 
 class BecomeCoachRequest(models.Model):

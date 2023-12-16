@@ -138986,5 +138986,14 @@
         "created": "2023-12-10T16:05:51Z",
         "last_update": "2023-12-10T16:05:51Z"
     }
+},
+{
+    "model": "FitConnect.admin",
+    "pk": 1,
+    "fields": {
+        "user": 50,
+        "created": "2023-12-10T16:05:51Z",
+        "last_update": "2023-12-10T16:05:51Z"
+    }
 }
 ]
