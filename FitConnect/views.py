@@ -342,7 +342,7 @@ def create_workout_plan(request):
         )
 
         # find exercise data
-        exercises_data = json.loads(data.get('exercises'))
+        exercises_data = data.get('exercises')
 
         # Create ExerciseInWorkoutPlan objects
         for exercise_data in exercises_data:
