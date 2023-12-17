@@ -1,5 +1,5 @@
 from datetime import timedelta
-
+from django.http import HttpRequest
 from django.core.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.views import APIView
@@ -209,6 +209,7 @@ class CoachClients(APIView):
 
     def get(self, request, pk):
         clients = User.objects.filter(has_coach=self.hired, hired_coach__coach_id=pk)
+        print(clients)
         clients_serializer = UserSerializer(clients, many=True)
         return Response(clients_serializer.data, status=status.HTTP_200_OK)
 
@@ -646,6 +647,31 @@ class DeclineClient(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# Give it a user id in url. Get the user ids and names of the people that have a chat history
+class ContactHistoryView(APIView):
+    def get(self, request, user_id, format=None):
+        # Retrieve all user IDs paired with the given user_id
+        paired_user_ids = MessageLog.objects.filter(
+            Q(sender_id=user_id) | Q(recipient_id=user_id)
+        ).values_list('sender_id', 'recipient_id')
+
+        all_paired_user_ids = set([user_id for pair in paired_user_ids for user_id in pair])
+
+        # Remove the original user_id from the list
+        all_paired_user_ids.discard(user_id)
+
+        # Retrieve user names and create the response data
+        response_data = []
+        for paired_user_id in all_paired_user_ids:
+            user_data = User.objects.filter(user_id=paired_user_id).values('user_id', 'first_name', 'last_name').first()
+            response_data.append({
+                'user_id': user_data['user_id'],
+                'name': user_data['first_name'] + ' ' + user_data['last_name']
+            })
+
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
 
 class MostRecentWorkoutPlanView(APIView):
     def get(self, request, user_id, format=None):
@@ -681,3 +707,4 @@ class MostRecentWorkoutPlanView(APIView):
 
         except WorkoutLog.DoesNotExist:
             return Response({'error': 'No workout logs found.'}, status=status.HTTP_400_BAD_REQUEST)
+
