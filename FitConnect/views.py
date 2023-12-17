@@ -671,3 +671,40 @@ class ContactHistoryView(APIView):
 
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+class MostRecentWorkoutPlanView(APIView):
+    def get(self, request, user_id, format=None):
+        try:
+            user = User.objects.get(user_id=user_id)
+
+            # Get the most recently logged workout plan for the user
+            most_recent_log = WorkoutLog.objects.filter(user=user).latest('created')
+            most_recent_plan = most_recent_log.exercise_in_plan.plan
+
+            # Get the plan name and ID
+            plan_name = most_recent_plan.plan_name
+            plan_id = most_recent_plan.plan_id
+
+            # Get the most recent day
+            most_recent_day = most_recent_log.completed_date
+
+            # Get all logs for the most recent workout plan
+            plan_logs = WorkoutLog.objects.filter(exercise_in_plan__plan=most_recent_plan, user=user, completed_date=most_recent_day)
+            log_serializer = WorkoutLogSerializer(plan_logs, many=True)
+
+            # Prepare the response data
+            response_data = {
+                'plan_name': plan_name,
+                'plan_id': plan_id,
+                'logs': log_serializer.data,
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except WorkoutLog.DoesNotExist:
+            return Response({'error': 'No workout logs found.'}, status=status.HTTP_400_BAD_REQUEST)
+
