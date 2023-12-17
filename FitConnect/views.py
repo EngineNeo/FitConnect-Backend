@@ -700,7 +700,7 @@ class MostRecentWorkoutPlanView(APIView):
 
             # Get all logs for the most recent workout plan
             plan_logs = WorkoutLog.objects.filter(exercise_in_plan__plan=most_recent_plan, user=user, completed_date=most_recent_day)
-            log_serializer = WorkoutLogSerializer(plan_logs, many=True)
+            log_serializer = WorkoutLogSerializerDom(plan_logs, many=True)
 
             # Prepare the response data
             response_data = {
