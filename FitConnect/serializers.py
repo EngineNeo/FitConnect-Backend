@@ -350,3 +350,7 @@ class CoachDeclineSerializer(serializers.Serializer):
             raise ValidationError('Coach does not exist.')
 
         return value
+
+class UserInfoSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
