@@ -612,8 +612,17 @@ class DailySurveyView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class WorkoutLogCreateView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = WorkoutLogSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class WorkoutLogView(ListAPIView):
-    serializer_class = WorkoutLogSerializer
+    serializer_class = WorkoutLogSerializerDom
 
     def get_queryset(self):
         user_id = self.kwargs['user_id']
@@ -707,4 +716,5 @@ class MostRecentWorkoutPlanView(APIView):
 
         except WorkoutLog.DoesNotExist:
             return Response({'error': 'No workout logs found.'}, status=status.HTTP_400_BAD_REQUEST)
+
 

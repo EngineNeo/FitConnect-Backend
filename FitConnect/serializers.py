@@ -4,7 +4,9 @@ from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
+
 from .models import *
+
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -305,6 +307,12 @@ class DailySurveySerializer(serializers.Serializer):
 
 
 class WorkoutLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkoutLog
+        fields = '__all__'
+
+
+class WorkoutLogSerializerDom(serializers.ModelSerializer):
     plan = serializers.SerializerMethodField()
     exercise = serializers.SerializerMethodField()
     class Meta:
@@ -354,3 +362,4 @@ class CoachDeclineSerializer(serializers.Serializer):
 class UserInfoSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
+
