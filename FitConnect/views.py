@@ -373,17 +373,27 @@ def create_workout_plan(request):
 @csrf_exempt
 def create_message(request):
     if request.method == 'POST':
-        sender_id = request.POST.get('sender_id')
-        recipient_id = request.POST.get('recipient_id')
-        message_text = request.POST.get('message_text')
+        try:
+            data = json.loads(request.body)
+            sender_id = data.get('sender_id')
+            recipient_id = data.get('recipient_id')
+            message_text = data.get('message_text')
 
-        sender = get_object_or_404(User, user_id=sender_id)
-        recipient = get_object_or_404(User, user_id=recipient_id)
+            sender = User.objects.get(user_id=sender_id)
+            recipient = User.objects.get(user_id=recipient_id)
 
-        message = MessageLog(sender=sender, recipient=recipient, message_text=message_text)
-        message.save()
+            message = MessageLog(sender=sender, recipient=recipient, message_text=message_text)
+            message.save()
 
-        return JsonResponse({'status': 'success'})
+            return JsonResponse({'status': 'success'})
+
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'User not found'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
 
 @csrf_exempt
 def get_messages(request, sender_id, recipient_id):
