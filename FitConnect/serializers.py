@@ -4,8 +4,9 @@ from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
-from .models import User, UserCredentials, Coach, GoalBank, PhysicalHealthLog, BecomeCoachRequest, ExerciseBank, EquipmentBank, MuscleGroupBank, MentalHealthLog, CalorieLog, WaterLog, WorkoutLog,\
-        WorkoutPlan, ExerciseInWorkoutPlan
+
+from .models import *
+
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -304,7 +305,61 @@ class DailySurveySerializer(serializers.Serializer):
     mood = serializers.CharField()
     weight = serializers.DecimalField(max_digits=5, decimal_places=2)
 
+
 class WorkoutLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkoutLog
         fields = '__all__'
+
+
+class WorkoutLogSerializerDom(serializers.ModelSerializer):
+    plan = serializers.SerializerMethodField()
+    exercise = serializers.SerializerMethodField()
+    class Meta:
+        model = WorkoutLog
+        fields = ['plan', 'exercise', 'reps', 'weight', 'duration_minutes', 'completed_date']
+
+    def get_plan(self, obj):
+        if obj.exercise_in_plan and obj.exercise_in_plan.plan:
+            return obj.exercise_in_plan.plan.plan_name
+        return None
+
+    def get_exercise(self, obj):
+        if obj.exercise_in_plan:
+            return obj.exercise_in_plan.exercise.name
+        return None
+
+
+class CoachDeclineSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    coach = serializers.IntegerField()
+
+    def save(self):
+        user_instance = User.objects.get(pk=self.validated_data['user'])
+        user_instance.hired_coach = None
+        user_instance.save()
+
+    def validate_user(self, value):
+        try:
+            user_instance = User.objects.get(pk=value)
+        except User.DoesNotExist:
+            print('User does not exist.')
+            raise ValidationError('User does not exist.')
+
+        if user_instance.hired_coach_id != self.initial_data['coach']:
+            print('Invalid client request.')
+            raise ValidationError('Invalid client request.')
+
+        return value
+
+    def validate_coach(self, value):
+        if not Coach.objects.filter(pk=value).exists():
+            print('Coach does not exist.')
+            raise ValidationError('Coach does not exist.')
+
+        return value
+
+class UserInfoSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+

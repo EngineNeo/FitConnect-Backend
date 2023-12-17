@@ -22,6 +22,8 @@ urlpatterns = [
     path('fitConnect/exercises/search/', SearchExercises.as_view()),
 
     path('fitConnect/become_coach', BecomeCoachRequestView.as_view(), name='become-coach-request'),
+    path('fitConnect/create_message/', create_message, name='create_message'),
+    path('fitConnect/get_messages/<int:sender_id>/<int:recipient_id>/', get_messages, name='get_messages'),
     path('fitConnect/users/<int:user_id>/plans', WorkoutPlanList.as_view()),
     path('fitConnect/plans', WorkoutPlanList.as_view()),
     path('fitConnect/plans/<int:pk>', WorkoutPlanDetail.as_view()),
@@ -34,4 +36,10 @@ urlpatterns = [
     path('fitConnect/logout/', LogoutView.as_view(), name='logout'),
 
     path('fitConnect/create_workout_log/', WorkoutLogCreateView.as_view(), name='create_workout_log'),
+
+    path('fitConnect/view_workout_logs/<int:user_id>/', WorkoutLogView.as_view(), name='view-workout-log'),
+    path('fitConnect/declineClient/', DeclineClient.as_view(), name='decline_client'),
+    path('fitConnect/contactHistory/<int:user_id>/', ContactHistoryView.as_view(), name='contact-history'),
+
+    path('fitConnect/mostRecentWorkoutPlanView/<int:user_id>/', MostRecentWorkoutPlanView.as_view(), name='most_recent_logged_workout_plan'),
 ]

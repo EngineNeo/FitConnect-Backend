@@ -1,23 +1,26 @@
+from datetime import timedelta
+from django.http import HttpRequest
 from django.core.exceptions import ValidationError
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from django.views.decorators.csrf import csrf_exempt
-
-from .models import ExerciseInWorkoutPlan, User, UserCredentials, Coach, AuthToken, WorkoutPlan, ExerciseBank, MuscleGroupBank, EquipmentBank, BecomeCoachRequest
-
 from .services.physical_health import add_physical_health_log
 from .services.goals import update_user_goal
 from .services.initial_survey_eligibility import check_initial_survey_eligibility
 from django.utils import timezone
 from django.http import JsonResponse, Http404
 import django, json
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 
 from .serializers import *
-
+from .models import *
 import django
 
 def validate_password(password):
@@ -94,6 +97,9 @@ class LoginView(APIView):
 
             if Coach.objects.filter(user_id=user_id).exists():
                 response['user_type'] = 'coach'
+
+            if Admin.objects.filter(user_id=user_id).exists():
+                response['user_type'] = 'admin'
 
             response.update(user_serializer.data)
             return Response(response, status=status.HTTP_200_OK)
@@ -203,6 +209,7 @@ class CoachClients(APIView):
 
     def get(self, request, pk):
         clients = User.objects.filter(has_coach=self.hired, hired_coach__coach_id=pk)
+        print(clients)
         clients_serializer = UserSerializer(clients, many=True)
         return Response(clients_serializer.data, status=status.HTTP_200_OK)
 
@@ -342,24 +349,52 @@ def create_workout_plan(request):
         )
 
         # find exercise data
-        exercises_data = json.loads(data.get('exercises'))
+        exercises_data = data.get('exercises', None)
 
         # Create ExerciseInWorkoutPlan objects
-        for exercise_data in exercises_data:
-            ExerciseInWorkoutPlan.objects.create(
-                plan=workout_plan,
-                exercise_id=exercise_data.get('exercise'),
-                sets=exercise_data.get('sets'),
-                reps=exercise_data.get('reps'),
-                weight=exercise_data.get('weight'),
-                duration_minutes=exercise_data.get('durationMinutes'),
-                created=timezone.now(),
-                last_update=timezone.now()
-            )
+        if exercises_data is not None:
+            for exercise_data in exercises_data:
+                ExerciseInWorkoutPlan.objects.create(
+                    plan=workout_plan,
+                    exercise_id=exercise_data.get('exercise'),
+                    sets=exercise_data.get('sets'),
+                    reps=exercise_data.get('reps'),
+                    weight=exercise_data.get('weight'),
+                    duration_minutes=exercise_data.get('durationMinutes'),
+                    created=timezone.now(),
+                    last_update=timezone.now()
+                )
 
         return JsonResponse({'status': 'success'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+@csrf_exempt
+def create_message(request):
+    if request.method == 'POST':
+        sender_id = request.POST.get('sender_id')
+        recipient_id = request.POST.get('recipient_id')
+        message_text = request.POST.get('message_text')
+
+        sender = get_object_or_404(User, user_id=sender_id)
+        recipient = get_object_or_404(User, user_id=recipient_id)
+
+        message = MessageLog(sender=sender, recipient=recipient, message_text=message_text)
+        message.save()
+
+        return JsonResponse({'status': 'success'})
+
+@csrf_exempt
+def get_messages(request, sender_id, recipient_id):
+    messages = MessageLog.objects.filter(
+        (Q(sender_id=sender_id) & Q(recipient_id=recipient_id)) |
+        (Q(sender_id=recipient_id) & Q(recipient_id=sender_id))
+    ).order_by('sent_date')
+
+    data = [{'sender': msg.sender.user_id, 'recipient': msg.recipient.user_id, 'text': msg.message_text} for msg in messages]
+
+    return JsonResponse({'messages': data})
 
 class WorkoutPlanList(APIView):
     def get(self, request, user_id=None):
@@ -577,6 +612,7 @@ class DailySurveyView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class WorkoutLogCreateView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = WorkoutLogSerializer(data=request.data)
@@ -584,3 +620,101 @@ class WorkoutLogCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class WorkoutLogView(ListAPIView):
+    serializer_class = WorkoutLogSerializerDom
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        end_date = timezone.now()
+        start_date = end_date - timedelta(days=4)  # Last 5 days
+        return WorkoutLog.objects.filter(user_id=user_id, completed_date__range=(start_date, end_date)).order_by('-completed_date')
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if not queryset:
+            return self.get_workout_logs_for_last_plan(kwargs['user_id'])
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get_workout_logs_for_last_plan(self, user_id):
+        latest_log = WorkoutLog.objects.filter(user_id=user_id).latest('completed_date')
+        latest_log_date = latest_log.completed_date
+        logs_on_latest_log_date = WorkoutLog.objects.filter(
+            user_id=user_id,
+            completed_date=latest_log_date
+        ).order_by('-completed_date')
+        serializer = self.get_serializer(logs_on_latest_log_date, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class DeclineClient(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = CoachDeclineSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Client request declined successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Give it a user id in url. Get the user ids and names of the people that have a chat history
+class ContactHistoryView(APIView):
+    def get(self, request, user_id, format=None):
+        # Retrieve all user IDs paired with the given user_id
+        paired_user_ids = MessageLog.objects.filter(
+            Q(sender_id=user_id) | Q(recipient_id=user_id)
+        ).values_list('sender_id', 'recipient_id')
+
+        all_paired_user_ids = set([user_id for pair in paired_user_ids for user_id in pair])
+
+        # Remove the original user_id from the list
+        all_paired_user_ids.discard(user_id)
+
+        # Retrieve user names and create the response data
+        response_data = []
+        for paired_user_id in all_paired_user_ids:
+            user_data = User.objects.filter(user_id=paired_user_id).values('user_id', 'first_name', 'last_name').first()
+            response_data.append({
+                'user_id': user_data['user_id'],
+                'name': user_data['first_name'] + ' ' + user_data['last_name']
+            })
+
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+class MostRecentWorkoutPlanView(APIView):
+    def get(self, request, user_id, format=None):
+        try:
+            user = User.objects.get(user_id=user_id)
+
+            # Get the most recently logged workout plan for the user
+            most_recent_log = WorkoutLog.objects.filter(user=user).latest('created')
+            most_recent_plan = most_recent_log.exercise_in_plan.plan
+
+            # Get the plan name and ID
+            plan_name = most_recent_plan.plan_name
+            plan_id = most_recent_plan.plan_id
+
+            # Get the most recent day
+            most_recent_day = most_recent_log.completed_date
+
+            # Get all logs for the most recent workout plan
+            plan_logs = WorkoutLog.objects.filter(exercise_in_plan__plan=most_recent_plan, user=user, completed_date=most_recent_day)
+            log_serializer = WorkoutLogSerializer(plan_logs, many=True)
+
+            # Prepare the response data
+            response_data = {
+                'plan_name': plan_name,
+                'plan_id': plan_id,
+                'logs': log_serializer.data,
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except WorkoutLog.DoesNotExist:
+            return Response({'error': 'No workout logs found.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
