@@ -42,4 +42,5 @@ urlpatterns = [
     path('fitConnect/contactHistory/<int:user_id>/', ContactHistoryView.as_view(), name='contact-history'),
 
     path('fitConnect/mostRecentWorkoutPlanView/<int:user_id>/', MostRecentWorkoutPlanView.as_view(), name='most_recent_logged_workout_plan'),
+    path('fitConnect/serverTimeView', ServerTimeView.as_view(), name='server-time'),
 ]

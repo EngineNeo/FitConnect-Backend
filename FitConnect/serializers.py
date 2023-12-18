@@ -363,3 +363,5 @@ class UserInfoSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
 
+class ServerTimeSerializer(serializers.Serializer):
+    server_time = serializers.DateTimeField()

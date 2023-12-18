@@ -729,4 +729,8 @@ class MostRecentWorkoutPlanView(APIView):
         except WorkoutLog.DoesNotExist:
             return Response({'error': 'No workout logs found.'}, status=status.HTTP_400_BAD_REQUEST)
 
-
+class ServerTimeView(APIView):
+    def get(self, request):
+        server_time = timezone.now()
+        serializer = ServerTimeSerializer({'server_time': server_time})
+        return Response(serializer.data, status=status.HTTP_200_OK)
