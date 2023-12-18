@@ -396,13 +396,15 @@ def create_message(request):
 
 
 @csrf_exempt
-def get_messages(request, sender_id, recipient_id):
+def get_messages(request, sender_id, recipient_id): # Add first and last name as name
     messages = MessageLog.objects.filter(
         (Q(sender_id=sender_id) & Q(recipient_id=recipient_id)) |
         (Q(sender_id=recipient_id) & Q(recipient_id=sender_id))
     ).order_by('sent_date')
 
-    data = [{'sender': msg.sender.user_id, 'recipient': msg.recipient.user_id, 'text': msg.message_text} for msg in messages]
+    data = [{'sender': msg.sender.user_id, 'sender_name': f"{msg.sender.first_name} {msg.sender.last_name}",
+             'recipient': msg.recipient.user_id, 'recipient_name': f"{msg.recipient.first_name} {msg.recipient.last_name}",
+             'text': msg.message_text} for msg in messages]
 
     return JsonResponse({'messages': data})
 
@@ -478,7 +480,7 @@ class ExerciseInWorkoutPlanView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 # Visitor View for Exercises
-class ExerciseList(generics.ListAPIView):
+class ExerciseList(generics.ListAPIView): # include exercise id
     queryset = ExerciseBank.objects.filter(is_active=1)
     serializer_class = ExerciseListSerializer
 

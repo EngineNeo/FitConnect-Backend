@@ -164,7 +164,7 @@ class ExerciseListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExerciseBank
-        fields = ['name', 'description', 'muscle_group_name', 'equipment_name']
+        fields = ['exercise_id', 'name', 'description', 'muscle_group_name', 'equipment_name']
 
 class ExerciseSerializer(serializers.ModelSerializer):
     class Meta:
