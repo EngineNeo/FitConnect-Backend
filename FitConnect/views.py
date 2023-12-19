@@ -410,11 +410,11 @@ def get_messages(request, sender_id, recipient_id): # Add first and last name as
 
 class WorkoutPlanList(APIView):
     def get(self, request, user_id=None):
-        plans = WorkoutPlan.objects.all()
+        plans = WorkoutPlan.objects.filter(is_active=1)
         plan_name = request.query_params.get("name")
         if user_id is not None:
             plans = plans.filter(user__user_id=user_id)
-        if plan_name:
+        if plan_name:   
             plans = plans.filter(plan_name__icontains=plan_name)
         serializer = WorkoutPlanSerializer(plans, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -424,9 +424,7 @@ class WorkoutPlanList(APIView):
 
 class WorkoutPlanDetail(APIView):
     def get(self, request, pk):
-        plan = get_object_or_404(WorkoutPlan, pk=pk)
-        if plan is None:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        plan = get_object_or_404(WorkoutPlan.objects.filter(is_active=1), pk=pk)
         serializer = WorkoutPlanSerializer(plan)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -441,7 +439,8 @@ class WorkoutPlanDetail(APIView):
 
     def delete(self, request, pk):
         plan = get_object_or_404(WorkoutPlan, pk=pk)
-        plan.delete()
+        plan.is_active = False
+        plan.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ExerciseInWorkoutPlanView(APIView):
@@ -476,7 +475,8 @@ class ExerciseInWorkoutPlanView(APIView):
 
     def delete(self, request, pk):
         exercise_in_plan = get_object_or_404(ExerciseInWorkoutPlan, pk=pk)
-        exercise_in_plan.delete()
+        exercise_in_plan.is_active = False
+        exercise_in_plan.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 # Visitor View for Exercises

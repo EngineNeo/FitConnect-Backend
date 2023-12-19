@@ -217,7 +217,7 @@ class ExerciseInWorkoutPlanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExerciseInWorkoutPlan
-        fields = ['exercise_in_plan_id', 'plan_id', 'exercise', 'sets', 'reps', 'weight', 'duration_minutes']
+        fields = ['exercise_in_plan_id', 'plan_id', 'exercise', 'sets', 'reps', 'weight', 'duration_minutes', 'is_active']
 
     def validate_sets(self, value):
         #print('sets = ', value)
@@ -257,10 +257,23 @@ class ExerciseInWorkoutPlanSerializer(serializers.ModelSerializer):
 
 class WorkoutPlanSerializer(serializers.ModelSerializer):
     exercises = ExerciseInWorkoutPlanSerializer(many=True, read_only=True)
-
     class Meta:
         model = WorkoutPlan
         fields = ['plan_id', 'user_id', 'plan_name', 'creation_date', 'exercises']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        # Filter out exercises with is_active=0
+        active_exercises = [
+            exercise
+            for exercise in representation.get('exercises', [])
+            if exercise.get('is_active', 1) != 0
+        ]
+
+        representation['exercises'] = active_exercises
+
+        return representation
 
 class ViewBecomeCoachRequestSerializer(serializers.ModelSerializer):
     class Meta:

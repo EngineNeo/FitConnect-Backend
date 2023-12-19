@@ -128,6 +128,7 @@ class ExerciseInWorkoutPlan(models.Model):
     reps = models.IntegerField(blank=True, null=True)
     weight = models.IntegerField(blank=True, null=True)
     duration_minutes = models.IntegerField(blank=True, null=True)
+    is_active = models.IntegerField(default=True, null=False)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
@@ -334,6 +335,7 @@ class WorkoutPlan(models.Model):
     user = models.ForeignKey(User, models.DO_NOTHING)
     plan_name = models.CharField(max_length=255)
     creation_date = models.DateField(default=timezone.now)
+    is_active = models.IntegerField(default=True, null=False)
     created = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
