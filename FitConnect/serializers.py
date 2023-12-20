@@ -352,16 +352,19 @@ class CoachDeclineSerializer(serializers.Serializer):
         user_instance.hired_coach = None
         user_instance.save()
 
-    def validate_user(self, value):
+    def validate(self, data):
+        user_id = data['user']
+        coach_id = data['coach']
+
         try:
-            user_instance = User.objects.get(pk=value)
+            user_instance = User.objects.get(pk=user_id)
         except User.DoesNotExist:
-            print('User does not exist.')
             raise ValidationError('User does not exist.')
 
-        if user_instance.hired_coach_id != self.initial_data['coach']:
-            print('Invalid client request.')
+        if user_instance.hired_coach_id != coach_id:
             raise ValidationError('Invalid client request.')
+
+        return data
 
         return value
 
