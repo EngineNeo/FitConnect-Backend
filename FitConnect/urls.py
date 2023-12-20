@@ -37,7 +37,7 @@ urlpatterns = [
 
     path('fitConnect/create_workout_log/', WorkoutLogCreateView.as_view(), name='create_workout_log'),
 
-    path('fitConnect/view_workout_logs/<int:user_id>/', WorkoutLogView.as_view(), name='view-workout-log'),
+    path('fitConnect/view_workout_logs/<int:plan_id>/', WorkoutLogView.as_view(), name='view-workout-log'),
     path('fitConnect/declineClient/', DeclineClient.as_view(), name='decline_client'),
     path('fitConnect/contactHistory/<int:user_id>/', ContactHistoryView.as_view(), name='contact-history'),
 
