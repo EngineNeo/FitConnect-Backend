@@ -350,6 +350,7 @@ class CoachDeclineSerializer(serializers.Serializer):
     def save(self):
         user_instance = User.objects.get(pk=self.validated_data['user'])
         user_instance.hired_coach = None
+        user_instance.has_coach = 0
         user_instance.save()
 
     def validate(self, data):
