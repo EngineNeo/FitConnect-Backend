@@ -48,6 +48,11 @@ jobs:
 #   - name: Apply migrations
 #     run: |
 #      python manage.py migrate
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Run tests
       run: |
