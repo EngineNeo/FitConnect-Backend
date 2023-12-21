@@ -17,7 +17,6 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: test_db
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
           - 3306:3306
         options: >-
@@ -25,6 +24,9 @@ jobs:
           --health-interval=10s
           --health-timeout=10s
           --health-retries=10
+
+    env:
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
     steps:
     - uses: actions/checkout@v2
