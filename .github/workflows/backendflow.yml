@@ -51,7 +51,7 @@ jobs:
 
     - name: Run tests
       run: |
-        export DATABASE_HOST=$DB_HOST
+        
         python manage.py test
 
   deploy:
