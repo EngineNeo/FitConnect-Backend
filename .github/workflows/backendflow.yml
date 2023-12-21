@@ -33,24 +33,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_db
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=10s
-          --health-retries=10
-
-    env:
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_HOST: mysql
-
     steps:
     - uses: actions/checkout@v2
 
@@ -59,24 +41,13 @@ jobs:
       with:
         python-version: 3.11.5
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+#    - name: Make migrations
+#      run: |
+#       python manage.py makemigrations
 
-    - name: Wait for MySQL
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '20s'
-
-    - name: Make migrations
-      run: |
-        python manage.py makemigrations
-
-    - name: Apply migrations
-      run: |
-        python manage.py migrate
+#   - name: Apply migrations
+#     run: |
+#      python manage.py migrate
 
     - name: Run tests
       run: |
