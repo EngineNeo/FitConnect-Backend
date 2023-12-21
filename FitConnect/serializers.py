@@ -276,9 +276,14 @@ class WorkoutPlanSerializer(serializers.ModelSerializer):
         return representation
 
 class ViewBecomeCoachRequestSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
     class Meta:
         model = BecomeCoachRequest
-        fields = ['user_id', 'goal_id', 'experience', 'cost', 'bio']
+        fields = ['user_id', 'name', 'goal_id', 'experience', 'cost', 'bio']
+
+    def get_name(self, obj):
+        user = User.objects.get(user_id=obj.user_id)
+        return user.first_name + ' ' + user.last_name
 
 
 class DomCoachSerializer(serializers.ModelSerializer):
