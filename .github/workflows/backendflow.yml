@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     services:
@@ -27,6 +26,7 @@ jobs:
 
     env:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_HOST: mysql
 
     steps:
     - uses: actions/checkout@v2
@@ -43,10 +43,14 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Run migrations
-      run: python manage.py migrate
+      run: |
+        export DATABASE_HOST=$DB_HOST
+        python manage.py migrate
 
     - name: Run tests
-      run: python manage.py test
+      run: |
+        export DATABASE_HOST=$DB_HOST
+        python manage.py test
 
     - name: Lint with flake8
       run: |
