@@ -85,10 +85,10 @@ WSGI_APPLICATION = "FitConnectProjectDjango.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fitness',
-        'USER': 'root',
-        'PASSWORD': os.environ['DB_PASSWORD'],
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'NAME': os.environ.get('MYSQL_DATABASE', 'fitness'),
+        'USER': os.environ.get('MYSQL_USER', 'root'),
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD', ''),
+        'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
         'PORT': '3306',
     }
 }
