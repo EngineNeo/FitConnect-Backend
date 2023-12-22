@@ -43,18 +43,26 @@ jobs:
       run: python manage.py test
         
   deploy:
-    needs: [build, test]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-    - uses: LuisEnMarroquin/setup-ssh-action@v2.0.0
-      with:
-        ORIGIN: ${{ secrets.SERVER_HOST }} # example.com || 8.8.8.8
-        SSHKEY: ${{ secrets.SSH_PRIVATE_KEY }} # ----- BEGIN RSA PRIVATE KEY----- ...
-        NAME: production
-        PORT: ${{ secrets.SSH_PORT }} # SSH port, usually 22
-        USER: ${{ secrets.SERVER_USER }} # SSH user
-    - run: ssh production "
-        cd /home/neohost/FitConnect-Backend &&
-        git pull origin main
-        "
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # Checks out your repository under $GITHUB_WORKSPACE
+  
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+  
+      - name: Deploy to server
+        run: |
+          ssh -p $SSH_PORT $SERVER_USER@$SERVER_HOST "cd /home/neohost/FitConnect-Backend && git pull origin main"
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
