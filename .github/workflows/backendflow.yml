@@ -74,7 +74,7 @@ jobs:
   
     - name: Deploy to Server
       run: |
-        ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
+        ssh -vvv -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "command"
         cd /home/neohost/FitConnect-Backend
         git pull origin main
         "
