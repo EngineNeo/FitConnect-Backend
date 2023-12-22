@@ -9,21 +9,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-
     - name: Set up Python 3.11.5
       uses: actions/setup-python@v2
       with:
         python-version: 3.11.5
-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
     - name: Lint with flake8
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
@@ -32,49 +28,33 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-
     - name: Set up Python 3.11.5
       uses: actions/setup-python@v2
       with:
         python-version: 3.11.5
-
-#    - name: Make migrations
-#      run: |
-#       python manage.py makemigrations
-
-#   - name: Apply migrations
-#     run: |
-#      python manage.py migrate
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
     - name: Run tests
-      run: |
-        
-        python manage.py test
+      run: python manage.py test
         
   deploy:
     needs: [build, test]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-  
     steps:
-    - uses: actions/checkout@v2
-  
-    - name: Set up SSH
-      uses: LuisEnMarroquin/setup-ssh-action@v2.0.0
+    - uses: LuisEnMarroquin/setup-ssh-action@v2.0.0
       with:
-        private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-  
-    - name: Deploy to Server
-      run: |
-        ssh -vvv -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "command"
-        cd /home/neohost/FitConnect-Backend
+        ORIGIN: ${{ secrets.SERVER_HOST }} # example.com || 8.8.8.8
+        SSHKEY: ${{ secrets.SSH_PRIVATE_KEY }} # ----- BEGIN RSA PRIVATE KEY----- ...
+        NAME: production
+        PORT: ${{ secrets.SSH_PORT }} # SSH port, usually 22
+        USER: ${{ secrets.SERVER_USER }} # SSH user
+    - run: ssh production "
+        cd /home/neohost/FitConnect-Backend &&
         git pull origin main
         "
